@@ -132,17 +132,79 @@ namespace NimrodSharp
         PrefixOpr,
         PostfixOpr
     }
+    public enum NumericalBase
+    {
+        base10,
+        base2,
+        base8,
+        base16
+    }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public struct TToken
+    {
+        public TokenTypes tokType;
+        public int indent;
+        public System.IntPtr ident;
+        public long iNumber;
+        public double fNumber;
+        public NumericalBase numBase;
+        [MarshalAs(Un)]
+        public string literal;
+        public int line;
+        public int col;
+    }
     //we need to layout the struct as we write it
     [StructLayout(LayoutKind.Sequential)]
-    public class TLexer
+    public struct TLexer
     {
-        Int32 fileIdx;
-        int indentAhead;
+        //base class
+        public int bufpos;
+        [MarshalAs(UnmanagedType.LPStr)]
+        public string buf;
+        public int bufLen;
+        public IntPtr stream;
+        public int LineNumber;
+        public int sentinel;
+        public int lineStart;
+        //derived class
+        public Int32 fileIdx;
+        public int indentAhead;
     }
-    public class lexer
+    public class CLexer
     {
-        [DllImport("libnimrod.dll", EntryPoint="ExpIsKeyword")]
+        public CLexer(string line)
+        {
+            m_line = new CLLStream(line);
+            lexer.openLexer(ref m_lex, "", (IntPtr)m_line);
+        }
+        public CLexer(CLLStream line)
+        {
+            m_line = line;
+            lexer.openLexer(ref m_lex, "", (IntPtr)line);
+        }
+        ~CLexer()
+        {
+            lexer.closeLexer(ref m_lex);
+        }
+        public TToken GetNextToken()
+        {
+            TToken rv = new TToken();
+            lexer.rawGetTok(ref m_lex, ref rv);
+            return rv;
+        }
+        private CLLStream m_line;
+        private TLexer m_lex;
+    }
+    public static class lexer
+    {
+        [DllImport("libnimrod.dll", EntryPoint = "ExpOpenLexer", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void openLexer(ref TLexer lex, [MarshalAs(UnmanagedType.LPStr)] string filename, System.IntPtr llstream);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpCloseLexer", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void closeLexer(ref TLexer lex);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpRawGetTok", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void rawGetTok(ref TLexer l, ref TToken tok);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpIsKeyword", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool isKeyword(TokenTypes kind);
     }
 }
