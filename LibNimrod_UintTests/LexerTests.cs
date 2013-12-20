@@ -23,18 +23,18 @@ namespace LibNimrod_UintTests
         [TestMethod]
         public void canOpen()
         {
-            TLexer lex = new TLexer();
+            IntPtr lex;
             CLLStream line = new CLLStream(@"proc foo(a: int, b:int):int =");
-            lexer.openLexer(ref lex, "", (IntPtr)line);
-            Assert.AreEqual(lex.indentAhead, 2);
-            lexer.closeLexer(ref lex);
+            lex = lexer.openLexer("", (IntPtr)line);
+            Assert.AreEqual(lexer.getIndentAhead(lex), 2);
+            lexer.closeLexer(lex);
         }
         [TestMethod]
         public void parseType()
         {
             CLexer lex = new CLexer(@"proc foo(a: int, b: int):int =");
-            var tok = lex.GetNextToken();
-            Assert.AreEqual(tok.tokType, TokenTypes.Proc);
+            var tok = new CToken(lex.Lexer);
+            Assert.AreEqual(tok.type, TokenTypes.Proc);
 
         }
     }

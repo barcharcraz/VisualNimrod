@@ -2,6 +2,7 @@
 <TestSettings name="Unit Tests" id="906380a7-c058-43a6-8f36-966013e5a9eb" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
   <Description>This test run configuration is used for running the unit tests</Description>
   <Deployment>
+    <DeploymentItem filename="C:\Users\charlie\Source\Repos\libnimrod\nimrtl.dll" />
     <DeploymentItem filename="C:\Users\charlie\Source\Repos\libnimrod\libnimrod.dll" />
   </Deployment>
   <Execution>

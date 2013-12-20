@@ -34,6 +34,28 @@ namespace NimrodSharp
         {
             get { return llstream.LLStreamGetKind(stream); }
         }
+        public string StrVal
+        {
+            get 
+            {
+                return Marshal.PtrToStringAnsi(llstream.LLStreamReadAll(stream));
+            }
+        }
+        public string RawString
+        {
+            get
+            {
+                return Marshal.PtrToStringAnsi(llstream.LLStreamGetString(stream));
+            }
+        }
+        public int Rd
+        {
+            get { return llstream.LLStreamRd(stream); }
+        }
+        public int Wr
+        {
+            get { return llstream.LLStreamWr(stream); }
+        }
         public CLLStream(string data)
         {
             stream = llstream.LLStreamOpen(data);
@@ -64,5 +86,13 @@ namespace NimrodSharp
 
         [DllImport("libnimrod.dll", EntryPoint = "ExpGetLLStreamKind", CallingConvention = CallingConvention.Cdecl)]
         public static extern TLLStreamKind LLStreamGetKind(System.IntPtr stream);
+        [DllImport("libnimrod.dll", EntryPoint="ExpGetLLStreamReadAll", CallingConvention=CallingConvention.Cdecl)]
+        public static extern IntPtr LLStreamReadAll(System.IntPtr stream);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpGetLLStreamString", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr LLStreamGetString(IntPtr stream);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpGetLLStreamRd", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int LLStreamRd(IntPtr stream);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpGetLLStreamWr", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int LLStreamWr(IntPtr stream);
     }
 }

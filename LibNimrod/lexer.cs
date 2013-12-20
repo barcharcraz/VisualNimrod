@@ -145,12 +145,10 @@ namespace NimrodSharp
     {
         public TokenTypes tokType;
         public int indent;
-        public System.IntPtr ident;
         public long iNumber;
         public double fNumber;
         public NumericalBase numBase;
-        [MarshalAs(Un)]
-        public string literal;
+        public IntPtr literal;
         public int line;
         public int col;
     }
@@ -171,40 +169,81 @@ namespace NimrodSharp
         public Int32 fileIdx;
         public int indentAhead;
     }
+    public class CToken
+    {
+        public CToken(IntPtr lex)
+        {
+            m_token = lexer.rawOpenTok(lex) ;
+        }
+        ~CToken()
+        {
+            lexer.freeTok(m_token);
+        }
+        public TokenTypes type
+        {
+            get { return token.getTokType(m_token); }
+        }
+        private IntPtr m_token;
+    }
     public class CLexer
     {
+        public IntPtr Lexer { get { return m_lex; } }
         public CLexer(string line)
         {
             m_line = new CLLStream(line);
-            lexer.openLexer(ref m_lex, "", (IntPtr)m_line);
+            m_lex = lexer.openLexer("", (IntPtr)m_line);
         }
         public CLexer(CLLStream line)
         {
             m_line = line;
-            lexer.openLexer(ref m_lex, "", (IntPtr)line);
+            m_lex = lexer.openLexer("", (IntPtr)line);
         }
         ~CLexer()
         {
-            lexer.closeLexer(ref m_lex);
+            lexer.closeLexer(m_lex);
         }
         public TToken GetNextToken()
         {
-            TToken rv = new TToken();
-            lexer.rawGetTok(ref m_lex, ref rv);
+            TToken rv = lexer.rawGetTok(m_lex);
             return rv;
         }
         private CLLStream m_line;
-        private TLexer m_lex;
+        private IntPtr m_lex;
     }
     public static class lexer
     {
         [DllImport("libnimrod.dll", EntryPoint = "ExpOpenLexer", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void openLexer(ref TLexer lex, [MarshalAs(UnmanagedType.LPStr)] string filename, System.IntPtr llstream);
+        public static extern IntPtr openLexer([MarshalAs(UnmanagedType.LPStr)] string filename, System.IntPtr llstream);
         [DllImport("libnimrod.dll", EntryPoint = "ExpCloseLexer", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void closeLexer(ref TLexer lex);
-        [DllImport("libnimrod.dll", EntryPoint = "ExpRawGetTok", CallingConvention = CallingConvention.Cdecl)]
-        public static extern void rawGetTok(ref TLexer l, ref TToken tok);
+        public static extern void closeLexer(IntPtr lex);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpGetLexIndentAhead", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int getIndentAhead(IntPtr lex);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpRawOpenTok", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr rawOpenTok(IntPtr lex);
+        [DllImport("libnimrod.dll", EntryPoint="ExpRawFreeTok", CallingConvention=CallingConvention.Cdecl)]
+        public static extern void freeTok(IntPtr tok);
         [DllImport("libnimrod.dll", EntryPoint = "ExpIsKeyword", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool isKeyword(TokenTypes kind);
+        [DllImport("libnimrod.dll", EntryPoint="ExpRawGetTok", CallingConvention=CallingConvention.Cdecl)]
+        public static extern TToken rawGetTok(IntPtr lex);
+    }
+    public static class token
+    {
+        [DllImport("libnimrod.dll", EntryPoint = "ExpTokGetType", CallingConvention = CallingConvention.Cdecl)]
+        public static extern TokenTypes getTokType(IntPtr token);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpTokGetIndent", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int getTokIndent(IntPtr token);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpTokGetiNumber", CallingConvention = CallingConvention.Cdecl)]
+        public static extern long getTokiNumber(IntPtr token);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpTokGetfNumber", CallingConvention = CallingConvention.Cdecl)]
+        public static extern double getTokfNumber(IntPtr token);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpTokGetBase", CallingConvention = CallingConvention.Cdecl)]
+        public static extern NumericalBase getTokBase(IntPtr token);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpTokGetLiteral", CallingConvention = CallingConvention.Cdecl)]
+        public static extern string getTokLiteral(IntPtr token);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpTokGetLine", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int getTokLine(IntPtr token);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpTokGetCol", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int getTokCol(IntPtr token);
     }
 }
