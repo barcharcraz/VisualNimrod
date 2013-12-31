@@ -4,25 +4,35 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Package;
+using Microsoft.VisualStudio.TextManager.Interop;
 using NimrodSharp;
 
 namespace Company.NimrodVS
 {
     class NimrodScanner : IScanner
     {
+        private IVsTextBuffer m_buffer;
         private string m_source;
         private CLLStream m_stream;
         private CLexer m_lexer;
         private CToken m_tok;
+        public NimrodScanner(IVsTextBuffer buffer)
+        {
+            m_buffer = buffer;
+            
+        }
         public bool ScanTokenAndProvideInfoAboutIt(TokenInfo tokenInfo, ref int state)
         {
+            
             TokenTypes tokType = m_tok.type;
             switch (tokType)
             {
                 case TokenTypes.Invalid:
                 case TokenTypes.Eof:
+                    return false;
                 case TokenTypes.Symbol:
                     tokenInfo.Type = TokenType.Unknown;
+                    tokenInfo.Color = TokenColor.Text;
                     break;
                 case TokenTypes.Addr:
                 case TokenTypes.And:
@@ -93,6 +103,7 @@ namespace Company.NimrodVS
                 case TokenTypes.Xor:
                 case TokenTypes.Yield:
                     tokenInfo.Type = TokenType.Keyword;
+                    tokenInfo.Color = TokenColor.Keyword;
                     break;
                 case TokenTypes.IntLit:
                 case TokenTypes.Int8Lit:
@@ -107,13 +118,17 @@ namespace Company.NimrodVS
                 case TokenTypes.Float32Lit:
                 case TokenTypes.Float64Lit:
                 case TokenTypes.Float128Lit:
+                    tokenInfo.Type = TokenType.Literal;
+                    tokenInfo.Color = TokenColor.Number;
+                    break;
                 case TokenTypes.StrLit:
                 case TokenTypes.RStrLit:
                 case TokenTypes.TripleStrLit:
                 case TokenTypes.GStrLit:
                 case TokenTypes.GTripleStrLit:
                 case TokenTypes.CharLit:
-                    tokenInfo.Type = TokenType.Literal;
+                    tokenInfo.Type = TokenType.String;
+                    tokenInfo.Color = TokenColor.String;
                     break;
                 case TokenTypes.ParLe:
                 case TokenTypes.ParRi:
@@ -128,6 +143,7 @@ namespace Company.NimrodVS
                 case TokenTypes.ParDotLe:
                 case TokenTypes.ParDotRi:
                     tokenInfo.Type = TokenType.Delimiter;
+                    tokenInfo.Color = TokenColor.Text;
                     break;
                 case TokenTypes.Comma:
                 case TokenTypes.SemiColon:
@@ -141,6 +157,7 @@ namespace Company.NimrodVS
                     break;
                 case TokenTypes.Comment:
                     tokenInfo.Type = TokenType.Comment;
+                    tokenInfo.Color = TokenColor.Comment;
                     break;
                 case TokenTypes.Accent:
                     tokenInfo.Type = TokenType.Text;
@@ -156,6 +173,7 @@ namespace Company.NimrodVS
                 default:
                     break;
             }
+            return true;
         }
 
         public void SetSource(string source, int offset)

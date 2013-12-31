@@ -48,6 +48,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <CopyVsixExtensionFiles>False</CopyVsixExtensionFiles>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -145,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Guids.cs" />
+    <Compile Include="NimrodAuthoringScope.cs" />
     <Compile Include="NimrodLanguageService.cs" />
     <Compile Include="NimrodScanner.cs" />
     <Compile Include="Resources.Designer.cs">
@@ -191,7 +193,6 @@
     <ProjectReference Include="..\LibNimrod\NimrodSharp.csproj">
       <Project>{4a26a734-3426-4e76-8bbe-6cd63ffe8284}</Project>
       <Name>NimrodSharp</Name>
-      <EmbedInteropTypes>False</EmbedInteropTypes>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

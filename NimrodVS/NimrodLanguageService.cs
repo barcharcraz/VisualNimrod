@@ -13,10 +13,6 @@ namespace Company.NimrodVS
     class NimrodLanguageService : LanguageService
     {
         private LanguagePreferences prefs;
-        public override string GetFormatFilterList()
-        {
-            throw new NotImplementedException();
-        }
 
         public override LanguagePreferences GetLanguagePreferences()
         {
@@ -24,6 +20,7 @@ namespace Company.NimrodVS
             {
                 prefs = new LanguagePreferences(this.Site,
                     typeof(NimrodLanguageService).GUID, this.Name);
+                
                 //seriously MS...
                 if (this.prefs != null)
                 {
@@ -35,17 +32,25 @@ namespace Company.NimrodVS
 
         public override IScanner GetScanner(IVsTextLines buffer)
         {
-            throw new NotImplementedException();
+            return new NimrodScanner(buffer);
         }
 
         public override string Name
         {
-            get { throw new NotImplementedException(); }
+            get { return "Nimrod"; }
         }
-
+        public override Colorizer GetColorizer(IVsTextLines buffer)
+        {
+            return new Colorizer(this, buffer, GetScanner(buffer));
+        }
         public override AuthoringScope ParseSource(ParseRequest req)
         {
-            throw new NotImplementedException();
+            return new NimrodAuthoringScope();
+        }
+
+        public override string GetFormatFilterList()
+        {
+            return "Nimrod file(*.nim)";
         }
     }
 }

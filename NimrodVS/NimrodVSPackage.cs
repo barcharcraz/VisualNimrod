@@ -30,6 +30,10 @@ namespace Company.NimrodVS
     // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(GuidList.guidNimrodVSPkgString)]
+    [ProvideLanguageService(typeof(NimrodLanguageService), "Nimrod", 106, CodeSense=false, 
+        RequestStockColors=false, 
+        EnableCommenting=true)]
+    [ProvideLanguageExtension(typeof(NimrodLanguageService), ".nim")]
     public sealed class NimrodVSPackage : Package
     {
         /// <summary>
