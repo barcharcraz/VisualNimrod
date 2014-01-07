@@ -72,6 +72,7 @@
     <Compile Include="llstreamTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="LexerTests.cs" />
+    <Compile Include="HighliteTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibNimrod\NimrodSharp.csproj">

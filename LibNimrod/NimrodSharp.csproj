@@ -64,7 +64,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="highlite.cs" />
     <Compile Include="lexer.cs" />
+    <Compile Include="llnimutils.cs" />
     <Compile Include="llstream.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

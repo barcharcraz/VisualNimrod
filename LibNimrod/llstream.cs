@@ -34,13 +34,6 @@ namespace NimrodSharp
         {
             get { return llstream.LLStreamGetKind(stream); }
         }
-        public string StrVal
-        {
-            get 
-            {
-                return Marshal.PtrToStringAnsi(llstream.LLStreamReadAll(stream));
-            }
-        }
         public string RawString
         {
             get
@@ -67,7 +60,10 @@ namespace NimrodSharp
         }
         ~CLLStream()
         {
-            llstream.LLStreamClose(stream);
+            if (stream != IntPtr.Zero)
+            {
+                llstream.LLStreamClose(stream);
+            }
         }
         private IntPtr stream;
     }

@@ -8,6 +8,8 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Package;
+using NimrodSharp;
 
 namespace Company.NimrodVS
 {
@@ -30,11 +32,11 @@ namespace Company.NimrodVS
     // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(GuidList.guidNimrodVSPkgString)]
+    [ProvideService(typeof(NimrodLanguageService), ServiceName="Nimrod Language Service")]
     [ProvideLanguageService(typeof(NimrodLanguageService), "Nimrod", 106, CodeSense=false, 
-        RequestStockColors=false, 
-        EnableCommenting=true)]
+        RequestStockColors=true)]
     [ProvideLanguageExtension(typeof(NimrodLanguageService), ".nim")]
-    public sealed class NimrodVSPackage : Package
+    public sealed class NimrodVSPackage : Package, IOleComponent
     {
         /// <summary>
         /// Default constructor of the package.
@@ -49,7 +51,7 @@ namespace Company.NimrodVS
         }
 
 
-
+        private uint m_componentID;
         /////////////////////////////////////////////////////////////////////////////
         // Overridden Package Implementation
         #region Package Members
@@ -62,7 +64,28 @@ namespace Company.NimrodVS
         {
             Debug.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
             base.Initialize();
-
+            //proffer the service
+            IServiceContainer serviceContainer = this as IServiceContainer;
+            NimrodLanguageService langSvc = new NimrodLanguageService();
+            langSvc.SetSite(this);
+            serviceContainer.AddService(typeof(NimrodLanguageService),
+                langSvc, true);
+            //register a time to call our service during idle periods
+            IOleComponentManager mgr = GetService(typeof(SOleComponentManager))
+                                                    as IOleComponentManager;
+            if (m_componentID == 0 && mgr != null)
+            {
+                OLECRINFO[] crinfo = new OLECRINFO[1];
+                crinfo[0].cbSize = (uint)Marshal.SizeOf(typeof(OLECRINFO));
+                crinfo[0].grfcrf = (uint)_OLECRF.olecrfNeedIdleTime |
+                                   (uint)_OLECRF.olecrfNeedPeriodicIdleTime;
+                crinfo[0].grfcadvf = (uint)_OLECADVF.olecadvfModal |
+                                     (uint)_OLECADVF.olecadvfRedrawOff |
+                                     (uint)_OLECADVF.olecadvfWarningsOff;
+                crinfo[0].uIdleTimeInterval = 1000;
+                int hr = mgr.FRegisterComponent(this, crinfo, out m_componentID);
+                Marshal.ThrowExceptionForHR(hr);
+            }
             // Add our command handlers for menu (commands must exist in the .vsct file)
             OleMenuCommandService mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if ( null != mcs )
@@ -73,8 +96,87 @@ namespace Company.NimrodVS
                 mcs.AddCommand( menuItem );
             }
         }
+        protected override void Dispose(bool disposing)
+        {
+            if (m_componentID != 0)
+            {
+                IOleComponentManager mgr = GetService(typeof(SOleComponentManager))
+                                            as IOleComponentManager;
+                if (mgr != null)
+                {
+                    int hr = mgr.FRevokeComponent(m_componentID);
+                    try
+                    {
+                        Marshal.ThrowExceptionForHR(hr);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.Fail("revoke component failed with HR " + e.HResult);
+                    }
+                }
+            }
+            base.Dispose(disposing);
+        }
         #endregion
+        #region IOleComponent Members
+        public int FDoIdle(uint grfidlef)
+        {
+            bool bperiodic = (grfidlef & (uint)_OLEIDLEF.oleidlefPeriodic) != 0;
+            LanguageService langsvc = GetService(typeof(NimrodLanguageService))
+                                      as LanguageService;
+            if (langsvc != null)
+            {
+                langsvc.OnIdle(bperiodic);
+            }
+            return 0;
+        }
+        public int FContinueMessageLoop(uint uReason, IntPtr pvData, MSG[] pMsgPeeked)
+        {
+            return 1;
+        }
+        public int FPreTranslateMessage(MSG[] pMsg)
+        {
+            return 0;
+        }
+        public int FQueryTerminate(int fPromptUser)
+        {
+            return 1;
+        }
+        public int FReserved1(uint dwReserved, uint message, IntPtr wparam, IntPtr lparam)
+        {
+            return 1;
+        }
+        public IntPtr HwndGetWindow(uint dwWhich, uint dwReserved)
+        {
+            return IntPtr.Zero;
+        }
+        public void OnActivationChange(
+            IOleComponent pic,
+            int fSameComponent,
+            OLECRINFO[] pcrinfo,
+            int fHostIsActivateing,
+            OLECHOSTINFO[] pchostinfo,
+            uint dwReserved)
+        {
 
+        }
+        public void OnAppActivate(int fActive, uint dwOtherThreadID)
+        {
+
+        }
+        public void OnEnterState(uint uStateID, int fEnter)
+        {
+
+        }
+        public void OnLoseActivation()
+        {
+
+        }
+        public void Terminate()
+        {
+
+        }
+        #endregion
         /// <summary>
         /// This function is the callback used to execute a command when the a menu item is clicked.
         /// See the Initialize method to see how the menu item is associated to this function using

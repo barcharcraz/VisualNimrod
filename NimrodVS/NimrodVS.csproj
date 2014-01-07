@@ -187,6 +187,10 @@
     <None Include="Resources\Images.png" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\libnimrod\libnimrod.dll">
+      <Link>libnimrod.dll</Link>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Resources\Package.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -194,6 +198,9 @@
       <Project>{4a26a734-3426-4e76-8bbe-6cd63ffe8284}</Project>
       <Name>NimrodSharp</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ProjectBase\" />
   </ItemGroup>
   <PropertyGroup>
     <UseCodebase>true</UseCodebase>

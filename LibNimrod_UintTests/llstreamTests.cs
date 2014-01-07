@@ -25,7 +25,7 @@ namespace LibNimrod_UintTests
         public void TestLLStreamReadAll()
         {
             CLLStream test = new CLLStream("success");
-            Assert.AreEqual(test.StrVal, "success");
+            Assert.AreEqual(test.RawString, "success");
         }
         [TestMethod]
         public void TestLLStreamWrRd()

@@ -171,17 +171,38 @@ namespace NimrodSharp
     }
     public class CToken
     {
-        public CToken(IntPtr lex)
+        public CToken(IntPtr tok)
         {
-            m_token = lexer.rawOpenTok(lex) ;
+            m_token = tok;
         }
         ~CToken()
         {
-            lexer.freeTok(m_token);
+            if (m_token != IntPtr.Zero)
+            {
+                lexer.freeTok(m_token);
+            }
         }
         public TokenTypes type
         {
             get { return token.getTokType(m_token); }
+        }
+        public string literal
+        {
+            get
+            {
+                return Marshal.PtrToStringAnsi(token.getTokLiteral(m_token));
+            }
+        }
+        public string ParsedString
+        {
+            get
+            {
+                return Marshal.PtrToStringAnsi(token.getTokString(m_token));
+            }
+        }
+        public int col
+        {
+            get { return token.getTokCol(m_token); }
         }
         private IntPtr m_token;
     }
@@ -191,20 +212,28 @@ namespace NimrodSharp
         public CLexer(string line)
         {
             m_line = new CLLStream(line);
-            m_lex = lexer.openLexer("", (IntPtr)m_line);
+            m_lex = lexer.openLexer((IntPtr)m_line);
         }
         public CLexer(CLLStream line)
         {
             m_line = line;
-            m_lex = lexer.openLexer("", (IntPtr)line);
+            m_lex = lexer.openLexer((IntPtr)line);
         }
         ~CLexer()
         {
-            lexer.closeLexer(m_lex);
+            if (m_lex != IntPtr.Zero)
+            {
+                lexer.closeLexer(m_lex);
+            }
         }
         public TToken GetNextToken()
         {
             TToken rv = lexer.rawGetTok(m_lex);
+            return rv;
+        }
+        public CToken GetNextCToken()
+        {
+            CToken rv = new CToken(lexer.rawOpenTok(m_lex));
             return rv;
         }
         private CLLStream m_line;
@@ -213,7 +242,7 @@ namespace NimrodSharp
     public static class lexer
     {
         [DllImport("libnimrod.dll", EntryPoint = "ExpOpenLexer", CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr openLexer([MarshalAs(UnmanagedType.LPStr)] string filename, System.IntPtr llstream);
+        public static extern IntPtr openLexer(System.IntPtr llstream);
         [DllImport("libnimrod.dll", EntryPoint = "ExpCloseLexer", CallingConvention = CallingConvention.Cdecl)]
         public static extern void closeLexer(IntPtr lex);
         [DllImport("libnimrod.dll", EntryPoint = "ExpGetLexIndentAhead", CallingConvention = CallingConvention.Cdecl)]
@@ -240,10 +269,12 @@ namespace NimrodSharp
         [DllImport("libnimrod.dll", EntryPoint = "ExpTokGetBase", CallingConvention = CallingConvention.Cdecl)]
         public static extern NumericalBase getTokBase(IntPtr token);
         [DllImport("libnimrod.dll", EntryPoint = "ExpTokGetLiteral", CallingConvention = CallingConvention.Cdecl)]
-        public static extern string getTokLiteral(IntPtr token);
+        public static extern IntPtr getTokLiteral(IntPtr token);
         [DllImport("libnimrod.dll", EntryPoint = "ExpTokGetLine", CallingConvention = CallingConvention.Cdecl)]
         public static extern int getTokLine(IntPtr token);
         [DllImport("libnimrod.dll", EntryPoint = "ExpTokGetCol", CallingConvention = CallingConvention.Cdecl)]
         public static extern int getTokCol(IntPtr token);
+        [DllImport("libnimrod.dll", EntryPoint = "ExpTokToString", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr getTokString(IntPtr token);
     }
 }

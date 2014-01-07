@@ -13,7 +13,7 @@ namespace Company.NimrodVS
     class NimrodLanguageService : LanguageService
     {
         private LanguagePreferences prefs;
-
+        private NimrodScanner m_scanner;
         public override LanguagePreferences GetLanguagePreferences()
         {
             if (prefs == null)
@@ -32,7 +32,11 @@ namespace Company.NimrodVS
 
         public override IScanner GetScanner(IVsTextLines buffer)
         {
-            return new NimrodScanner(buffer);
+            if (m_scanner == null)
+            {
+                m_scanner = new NimrodScanner(buffer);
+            }
+            return m_scanner;
         }
 
         public override string Name
