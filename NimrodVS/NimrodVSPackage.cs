@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Package;
+using Microsoft.VisualStudio.Project;
 using NimrodSharp;
 
 namespace Company.NimrodVS
@@ -36,7 +37,9 @@ namespace Company.NimrodVS
     [ProvideLanguageService(typeof(NimrodLanguageService), "Nimrod", 106, CodeSense=false, 
         RequestStockColors=true)]
     [ProvideLanguageExtension(typeof(NimrodLanguageService), ".nim")]
-    public sealed class NimrodVSPackage : Package, IOleComponent
+    [ProvideProjectFactory(typeof(NimrodProject.NimrodProjectFactory), "Nimrod Executable", "Nimrod Projects (*.nimproj);*.nimproj", "nimproj", "nimproj", @"Templates/Projects/NimrodProject", NewProjectRequireNewFolderVsTemplate=false)]
+    [ProvideProjectItem(typeof(NimrodProject.NimrodProjectFactory), "Nimrod Source", @"Templates/ProjectItems/NimrodProject", 500)]
+    public sealed class NimrodVSPackage : ProjectPackage, IOleComponent
     {
         /// <summary>
         /// Default constructor of the package.
@@ -64,6 +67,7 @@ namespace Company.NimrodVS
         {
             Debug.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
             base.Initialize();
+            this.RegisterProjectFactory(new NimrodProject.NimrodProjectFactory(this));
             //proffer the service
             IServiceContainer serviceContainer = this as IServiceContainer;
             NimrodLanguageService langSvc = new NimrodLanguageService();
@@ -95,6 +99,10 @@ namespace Company.NimrodVS
                 MenuCommand menuItem = new MenuCommand(MenuItemCallback, menuCommandID );
                 mcs.AddCommand( menuItem );
             }
+        }
+        public override string ProductUserContext
+        {
+            get { return "Visual Nimrod"; }
         }
         protected override void Dispose(bool disposing)
         {
