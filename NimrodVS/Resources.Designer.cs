@@ -61,11 +61,173 @@ namespace Company.NimrodVS {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Application.
+        /// </summary>
+        internal static string Application {
+            get {
+                return ResourceManager.GetString("Application", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Application Icon.
+        /// </summary>
+        internal static string ApplicationIcon {
+            get {
+                return ResourceManager.GetString("ApplicationIcon", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sets the icon file to use as your application icon.
+        /// </summary>
+        internal static string ApplicationIconDescription {
+            get {
+                return ResourceManager.GetString("ApplicationIconDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Assembly Name.
+        /// </summary>
+        internal static string AssemblyName {
+            get {
+                return ResourceManager.GetString("AssemblyName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The name of the output file that will hold assembly metadata.
+        /// </summary>
+        internal static string AssemblyNameDescription {
+            get {
+                return ResourceManager.GetString("AssemblyNameDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Default Namespace.
+        /// </summary>
+        internal static string DefaultNamespace {
+            get {
+                return ResourceManager.GetString("DefaultNamespace", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specifies the default namespace for things added with the add-item window.
+        /// </summary>
+        internal static string DefaultNamespaceDescription {
+            get {
+                return ResourceManager.GetString("DefaultNamespaceDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to General.
+        /// </summary>
+        internal static string GeneralCaption {
+            get {
+                return ResourceManager.GetString("GeneralCaption", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Nimrod.
         /// </summary>
         internal static string LanguageName {
             get {
                 return ResourceManager.GetString("LanguageName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output FIle.
+        /// </summary>
+        internal static string OutputFile {
+            get {
+                return ResourceManager.GetString("OutputFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The name of your projects primary output file.
+        /// </summary>
+        internal static string OutputFileDescription {
+            get {
+                return ResourceManager.GetString("OutputFileDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Output Type.
+        /// </summary>
+        internal static string OutputType {
+            get {
+                return ResourceManager.GetString("OutputType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The type of application to build, similar to the --app option.
+        /// </summary>
+        internal static string OutputTypeDescription {
+            get {
+                return ResourceManager.GetString("OutputTypeDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Project File.
+        /// </summary>
+        internal static string ProjectFile {
+            get {
+                return ResourceManager.GetString("ProjectFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The name of the file containing build, configuration, and other information.
+        /// </summary>
+        internal static string ProjectFileDescription {
+            get {
+                return ResourceManager.GetString("ProjectFileDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Project Folder.
+        /// </summary>
+        internal static string ProjectFolder {
+            get {
+                return ResourceManager.GetString("ProjectFolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The absolute location of the project.
+        /// </summary>
+        internal static string ProjectFolderDescription {
+            get {
+                return ResourceManager.GetString("ProjectFolderDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Startup Object.
+        /// </summary>
+        internal static string StartupObject {
+            get {
+                return ResourceManager.GetString("StartupObject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The name of the class that contains the entry point.
+        /// </summary>
+        internal static string StartupObjectDescription {
+            get {
+                return ResourceManager.GetString("StartupObjectDescription", resourceCulture);
             }
         }
     }

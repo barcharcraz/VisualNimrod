@@ -6,20 +6,26 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>VisualNimrod</RootNamespace>
     <AssemblyName>VisualNimrod</AssemblyName>
+    <StartupObject>Program.nim</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Debug\</OutputPath>
+    <CompilerFlags>"-gcoff"</CompilerFlags>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugSymbols>true</DebugSymbols>
+    <CompilerFlags></CompilerFlags>
     <OutputPath>bin\Release\</OutputPath>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-	<Compile Include="Program.nim">
-		<SubType>Code</SubType>
-	</Compile>
+    <Compile Include="Program.nim">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
+  <Target Name="Build">
+    <Exec Command="nimrod c --passc:$(CompilerFlags) -d:$(Configuration) -o:$(OutputPath)$(AssemblyName) $(StartupObject) " />
+  </Target>
 </Project>  

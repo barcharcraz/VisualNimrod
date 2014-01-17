@@ -27,18 +27,20 @@ namespace Company.NimrodVS
     // This attribute tells the PkgDef creation utility (CreatePkgDef.exe) that this class is
     // a package.
     [PackageRegistration(UseManagedResourcesOnly = true)]
+    [DefaultRegistryRoot("Software\\Microsoft\\VisualStudio\\10.0")]
     // This attribute is used to register the information needed to show this package
     // in the Help/About dialog of Visual Studio.
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
     // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(GuidList.guidNimrodVSPkgString)]
+    [ProvideObject(typeof(NimrodProject.NimrodGeneralPropertyPage))]
     [ProvideService(typeof(NimrodLanguageService), ServiceName="Nimrod Language Service")]
     [ProvideLanguageService(typeof(NimrodLanguageService), "Nimrod", 106, CodeSense=false, 
         RequestStockColors=true)]
     [ProvideLanguageExtension(typeof(NimrodLanguageService), ".nim")]
-    [ProvideProjectFactory(typeof(NimrodProject.NimrodProjectFactory), "Nimrod Executable", "Nimrod Projects (*.nimproj);*.nimproj", "nimproj", "nimproj", @"Templates/Projects/NimrodProject", NewProjectRequireNewFolderVsTemplate=false)]
-    [ProvideProjectItem(typeof(NimrodProject.NimrodProjectFactory), "Nimrod Source", @"Templates/ProjectItems/NimrodProject", 500)]
+    [ProvideProjectFactory(typeof(NimrodProject.NimrodProjectFactory), "Nimrod Executable", "Nimrod Projects (*.nimproj);*.nimproj", "nimproj", "nimproj", @"..\..\Templates\Projects\NimrodProject", LanguageVsTemplate = "NimrodProject", NewProjectRequireNewFolderVsTemplate=false)]
+    [ProvideProjectItem(typeof(NimrodProject.NimrodProjectFactory), "Nimrod Source", @"..\..\Templates\ProjectItems\NimrodProject", 500)]
     public sealed class NimrodVSPackage : ProjectPackage, IOleComponent
     {
         /// <summary>

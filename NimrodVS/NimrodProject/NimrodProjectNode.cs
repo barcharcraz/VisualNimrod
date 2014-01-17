@@ -52,9 +52,17 @@ namespace Company.NimrodVS.NimrodProject
             node.OleServiceProvider.AddService(typeof(VSProject), new OleServiceProvider.ServiceCreatorCallback(this.CreateServices), false);
             return node;
         }
-        protected override Guid[] GetConfigurationDependentPropertyPages()
+        protected override Guid[] GetConfigurationIndependentPropertyPages()
         {
             Guid[] result = new Guid[1];
+            result[0] = typeof(NimrodGeneralPropertyPage).GUID;
+            return result;
+        }
+        protected override Guid[] GetPriorityProjectDesignerPages()
+        {
+            Guid[] result = new Guid[1];
+            result[0] = typeof(NimrodGeneralPropertyPage).GUID;
+            return result;
         }
         private object CreateServices(Type serviceType)
         {

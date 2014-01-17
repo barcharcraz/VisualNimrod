@@ -40,7 +40,7 @@ namespace Company.NimrodVS
         private static Object internalSyncObjectInstance;
 
         internal NimrodResources() {
-            resourceManager = new ResourceManager("Company.NimrodVS.NimrodResources", Assembly.GetExecutingAssembly());
+            resourceManager = new ResourceManager("Company.NimrodVS.Resources", Assembly.GetExecutingAssembly());
         }
         private static Object InternalSyncObject
         {

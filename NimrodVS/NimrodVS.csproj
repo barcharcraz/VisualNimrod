@@ -38,7 +38,7 @@
     <AssemblyName>NimrodVS</AssemblyName>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -147,13 +147,19 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\NimCategoryAttribute.cs" />
+    <Compile Include="Attributes\NimLocDisplayNameAttribute.cs" />
+    <Compile Include="Attributes\NimDescriptionAttribute.cs" />
     <Compile Include="Guids.cs" />
+    <Compile Include="IntelliSense\NimrodDefinitions.cs" />
     <Compile Include="NimrodAuthoringScope.cs" />
     <Compile Include="NimrodLanguageService.cs" />
+    <Compile Include="NimrodProject\NimrodGeneralPropertyPage.cs" />
     <Compile Include="NimrodProject\NimrodProjectAutomation.cs" />
     <Compile Include="NimrodProject\NimrodProjectFactory.cs" />
     <Compile Include="NimrodProject\NimrodProjectFileNode.cs" />
     <Compile Include="NimrodProject\NimrodProjectNode.cs" />
+    <Compile Include="NimrodResources.cs" />
     <Compile Include="NimrodScanner.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -180,6 +186,9 @@
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Templates\ProjectItems\NimrodProject\SourceFile.nim" />
+    <None Include="Templates\Projects\NimrodProject\NimrodProject.nimproj" />
+    <None Include="Templates\Projects\NimrodProject\Program.nim" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />
@@ -196,19 +205,20 @@
     <Content Include="..\..\libnimrod\libnimrod.dll">
       <Link>libnimrod.dll</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Package.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ProjectBase\Diagrams\" />
+    <Folder Include="ProjectBase\LangProj\" />
+    <Folder Include="ProjectBase\misc\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibNimrod\NimrodSharp.csproj">
       <Project>{4a26a734-3426-4e76-8bbe-6cd63ffe8284}</Project>
       <Name>NimrodSharp</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ProjectBase\Diagrams\" />
-    <Folder Include="ProjectBase\LangProj\" />
-    <Folder Include="ProjectBase\misc\" />
   </ItemGroup>
   <PropertyGroup>
     <UseCodebase>true</UseCodebase>
@@ -229,4 +239,27 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <CopyPkgDefDependsOn>$(CopyPkgDefDependsOn);FixPkgdefTarget</CopyPkgDefDependsOn>
+  </PropertyGroup>
+  <Target Name="FixPkgdefTarget">
+    <FixPkgdef PkgdefPath="$(MSBuildProjectDirectory)\$(IntermediateOutputPath)$(TargetName).pkgdef" Replace="$(MSBuildProjectDirectory)\$(OutputPath)" />
+  </Target>
+  <UsingTask TaskName="FixPkgdef" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <PkgdefPath ParameterType="System.String" Required="true" />
+      <Replace ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+            // Replace all "$PackageFolder$" with the actual path in the pkgdef
+            String content = File.ReadAllText(PkgdefPath);
+            String dllPath = Path.GetDirectoryName(Replace);
+            content = content.Replace("$PackageFolder$", dllPath);
+            File.WriteAllText(PkgdefPath, content);
+         ]]></Code>
+    </Task>
+  </UsingTask>
 </Project>

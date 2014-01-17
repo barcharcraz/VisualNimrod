@@ -117,7 +117,61 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Application" xml:space="preserve">
+    <value>Application</value>
+  </data>
+  <data name="ApplicationIcon" xml:space="preserve">
+    <value>Application Icon</value>
+  </data>
+  <data name="ApplicationIconDescription" xml:space="preserve">
+    <value>Sets the icon file to use as your application icon</value>
+  </data>
+  <data name="AssemblyName" xml:space="preserve">
+    <value>Assembly Name</value>
+  </data>
+  <data name="AssemblyNameDescription" xml:space="preserve">
+    <value>The name of the output file that will hold assembly metadata</value>
+  </data>
+  <data name="DefaultNamespace" xml:space="preserve">
+    <value>Default Namespace</value>
+  </data>
+  <data name="DefaultNamespaceDescription" xml:space="preserve">
+    <value>Specifies the default namespace for things added with the add-item window</value>
+  </data>
+  <data name="GeneralCaption" xml:space="preserve">
+    <value>General</value>
+  </data>
   <data name="LanguageName" xml:space="preserve">
     <value>Nimrod</value>
+  </data>
+  <data name="OutputFile" xml:space="preserve">
+    <value>Output FIle</value>
+  </data>
+  <data name="OutputFileDescription" xml:space="preserve">
+    <value>The name of your projects primary output file</value>
+  </data>
+  <data name="OutputType" xml:space="preserve">
+    <value>Output Type</value>
+  </data>
+  <data name="OutputTypeDescription" xml:space="preserve">
+    <value>The type of application to build, similar to the --app option</value>
+  </data>
+  <data name="ProjectFile" xml:space="preserve">
+    <value>Project File</value>
+  </data>
+  <data name="ProjectFileDescription" xml:space="preserve">
+    <value>The name of the file containing build, configuration, and other information</value>
+  </data>
+  <data name="ProjectFolder" xml:space="preserve">
+    <value>Project Folder</value>
+  </data>
+  <data name="ProjectFolderDescription" xml:space="preserve">
+    <value>The absolute location of the project</value>
+  </data>
+  <data name="StartupObject" xml:space="preserve">
+    <value>Startup Object</value>
+  </data>
+  <data name="StartupObjectDescription" xml:space="preserve">
+    <value>The name of the class that contains the entry point</value>
   </data>
 </root>

@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="highlite.cs" />
+    <Compile Include="idetools.cs" />
     <Compile Include="lexer.cs" />
     <Compile Include="llnimutils.cs" />
     <Compile Include="llstream.cs" />

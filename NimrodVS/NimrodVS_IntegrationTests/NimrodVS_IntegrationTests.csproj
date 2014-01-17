@@ -92,7 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NimrodVS.csproj">
-      <Project>{94F4018F-4FCE-4A9F-B9F7-F0B9169B4812}</Project>
+      <Project>{94f4018f-4fce-4a9f-b9f7-f0b9169b4812}</Project>
       <Name>NimrodVS</Name>
     </ProjectReference>
   </ItemGroup>
