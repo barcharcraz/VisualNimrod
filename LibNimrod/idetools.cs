@@ -12,15 +12,15 @@ namespace NimrodSharp
         private Process nimrodProc;
         public idetools()
         {
-            nimrodProc = Process.Start(CreateStartInfo());
+            nimrodProc = Process.Start(idetoolsfuncs.CreateStartInfo());
         }
     }
-    public static class idetools
+    public static class idetoolsfuncs
     {
-        private static ProcessStartInfo CreateStartInfo(string )
+        public static ProcessStartInfo CreateStartInfo()
         {
             ProcessStartInfo rv = new ProcessStartInfo("nimrod");
-            rv.Arguments("serve --server.type:stdin")
+            rv.Arguments = "serve --server.type:stdin";
             rv.CreateNoWindow = true;
             rv.RedirectStandardError = true;
             rv.RedirectStandardInput = true;
