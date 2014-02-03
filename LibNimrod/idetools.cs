@@ -4,9 +4,44 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
-
+using System.IO;
 namespace NimrodSharp
 {
+    public enum symTypes
+    {
+        skConst,
+        skEnumField,
+        skForVar,
+        skIterator,
+        skLabel,
+        skLet,
+        skMacro,
+        skMethod,
+        skParam,
+        skProc,
+        skResult,
+        skTemplate,
+        skType,
+        skVar,
+        none
+    }
+    public enum resultTypes
+    {
+        def,
+        sug,
+        unsupported
+    }
+    public class idetoolsReply
+    {
+        public resultTypes replyType;
+        public string verbatimOutput;
+        public symTypes type;
+        public string path;
+        public string typeSig;
+        public string filePath;
+        public int line;
+        public int col;
+    }
     public class idetools
     {
         private Process nimrodProc;
@@ -22,10 +57,77 @@ namespace NimrodSharp
             ProcessStartInfo rv = new ProcessStartInfo("nimrod");
             rv.Arguments = "serve --server.type:stdin";
             rv.CreateNoWindow = true;
+            rv.UseShellExecute = false;
             rv.RedirectStandardError = true;
             rv.RedirectStandardInput = true;
             rv.RedirectStandardOutput = true;
             return rv;
+        }
+        public static ProcessStartInfo CreateStartInfo(string args)
+        {
+            var info = CreateStartInfo();
+            info.Arguments = args;
+            return info;
+        }
+        public static idetoolsReply ParseReply(string def)
+        {
+            var rv = new idetoolsReply();
+            rv.verbatimOutput = def;
+            string[] cols = def.Split(new char[]{'\t'});
+            bool result = Enum.TryParse<resultTypes>(cols[0], out rv.replyType);
+            if (!result)
+            {
+                rv.replyType = resultTypes.unsupported;
+            }
+            result = Enum.TryParse<symTypes>(cols[1], out rv.type);
+            if (!result)
+            {
+                rv.type = symTypes.none;
+            }
+            rv.path = cols[2];
+            rv.typeSig = cols[3];
+            rv.filePath = cols[4];
+            result = int.TryParse(cols[5], out rv.line);
+            if (!result)
+            {
+                rv.line = -1;
+            }
+            result = int.TryParse(cols[6], out rv.col);
+            if (!result)
+            {
+                rv.col = -1;
+            }
+            return rv;
+        }
+        public static string GetArgs(string action, string file, int line, int col, string project)
+        {
+            string rv = "--verbosity:0 idetools --track:" + file + "," + line.ToString() + "," + col.ToString() + " --" + action + " " + Path.GetFileName(project);
+            return rv;
+        }
+        public static string GetRawResults(string action, string file, int line, int col, string project)
+        {
+            var startInfo = CreateStartInfo(GetArgs(action, file, line, col, project));
+            startInfo.WorkingDirectory = Path.GetDirectoryName(project);
+            var proc = Process.Start(startInfo);
+            proc.WaitForExit();
+            string result = proc.StandardOutput.ReadToEnd();
+            return result;
+        }
+        public static string GetRawDef(string file, int line, int col, string project)
+        {
+            return GetRawResults("def", file, line, col, project);
+        }
+        public static idetoolsReply GetReply(string action, string file, int line, int col, string project)
+        {
+            return ParseReply(GetRawResults(action, file, line, col, project));
+        }
+        public static idetoolsReply GetDef(string file, int line, int col, string project)
+        {
+            return ParseReply(GetRawDef(file, line, col, project));
+        }
+        public static idetoolsReply GetSuggestions(string file, int line, int col, string project)
+        {
+            return GetReply("suggest", file, line, col, project);
         }
     }
 }

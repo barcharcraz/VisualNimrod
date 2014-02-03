@@ -21,6 +21,7 @@ namespace Company.NimrodVS
         }
         public bool ScanTokenAndProvideInfoAboutIt(TokenInfo tokenInfo, ref int state)
         {
+            
             highlite.NimNextToken(ref m_tokenizer);
             switch (m_tokenizer.kind)
             {
@@ -95,6 +96,7 @@ namespace Company.NimrodVS
                     tokenInfo.Color = TokenColor.Text;
                     break;
             }
+            
             tokenInfo.StartIndex = m_tokenizer.start -1;
             tokenInfo.EndIndex = m_tokenizer.start + m_tokenizer.length - 1;
             return true;
