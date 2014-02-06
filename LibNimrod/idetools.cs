@@ -99,9 +99,24 @@ namespace NimrodSharp
             }
             return rv;
         }
+        public static List<idetoolsReply> ParseMultipleReply(string reply)
+        {
+            var rv = new List<idetoolsReply>();
+            var lines = reply.Split(new string[]{"\n", "\r\n"}, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var elm in lines)
+            {
+                rv.Add(ParseReply(elm));
+            }
+            return rv;
+        }
         public static string GetArgs(string action, string file, int line, int col, string project)
         {
             string rv = "--verbosity:0 idetools --track:" + file + "," + line.ToString() + "," + col.ToString() + " --" + action + " " + Path.GetFileName(project);
+            return rv;
+        }
+        public static string GetDirtyArgs(string action, string dirty_file, string file, int line, int col, string project)
+        {
+            string rv = "--verbosity:0 idetools --trackDirty:" + dirty_file + "," + file + "," + line.ToString() + "," + col.ToString() + " --" + action + " " + Path.GetFileName(project);
             return rv;
         }
         public static string GetRawResults(string action, string file, int line, int col, string project)
@@ -113,21 +128,34 @@ namespace NimrodSharp
             string result = proc.StandardOutput.ReadToEnd();
             return result;
         }
-        public static string GetRawDef(string file, int line, int col, string project)
+        public static string GetRawDirtyResults(string action, string dirty_file, string file, int line, int col, string project)
         {
-            return GetRawResults("def", file, line, col, project);
+            var startInfo = CreateStartInfo(GetDirtyArgs(action, dirty_file, file, line, col, project));
+            startInfo.WorkingDirectory = Path.GetDirectoryName(project);
+            var proc = Process.Start(startInfo);
+            proc.WaitForExit();
+            string result = proc.StandardOutput.ReadToEnd();
+            return result;
         }
-        public static idetoolsReply GetReply(string action, string file, int line, int col, string project)
+        public static List<idetoolsReply> GetReply(string action, string file, int line, int col, string project)
         {
-            return ParseReply(GetRawResults(action, file, line, col, project));
+            return ParseMultipleReply(GetRawResults(action, file, line, col, project));
+        }
+        public static List<idetoolsReply> GetDirtyReply(string action, string dirty_file, string file, int line, int col, string project)
+        {
+            return ParseMultipleReply(GetRawDirtyResults(action, dirty_file, file, line, col, project));
         }
         public static idetoolsReply GetDef(string file, int line, int col, string project)
         {
-            return ParseReply(GetRawDef(file, line, col, project));
+            return GetReply("def", file, line, col, project).First();
         }
-        public static idetoolsReply GetSuggestions(string file, int line, int col, string project)
+        public static List<idetoolsReply> GetSuggestions(string file, int line, int col, string project)
         {
             return GetReply("suggest", file, line, col, project);
+        }
+        public static List<idetoolsReply> GetDirtySuggestions(string dirty_file, string file, int line, int col, string project)
+        {
+            return GetDirtyReply("suggest", dirty_file, file, line, col, project);
         }
     }
 }
