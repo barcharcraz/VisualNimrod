@@ -36,7 +36,7 @@ namespace Company.NimrodVS
     [Guid(GuidList.guidNimrodVSPkgString)]
     [ProvideObject(typeof(NimrodProject.NimrodGeneralPropertyPage))]
     [ProvideService(typeof(NimrodLanguageService), ServiceName="Nimrod Language Service")]
-    [ProvideLanguageService(typeof(NimrodLanguageService), "Nimrod", 106, CodeSense=false, 
+    [ProvideLanguageService(typeof(NimrodLanguageService), "Nimrod", 106, CodeSense=true,
         RequestStockColors=true)]
     [ProvideLanguageExtension(typeof(NimrodLanguageService), ".nim")]
     [ProvideProjectFactory(typeof(NimrodProject.NimrodProjectFactory), "Nimrod Executable", "Nimrod Projects (*.nimproj);*.nimproj", "nimproj", "nimproj", @"..\..\Templates\Projects\NimrodProject", LanguageVsTemplate = "NimrodProject", NewProjectRequireNewFolderVsTemplate=false)]
@@ -69,11 +69,14 @@ namespace Company.NimrodVS
         {
             Debug.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
             base.Initialize();
-            this.RegisterProjectFactory(new NimrodProject.NimrodProjectFactory(this));
+            var projFact = new NimrodProject.NimrodProjectFactory(this);
+            this.RegisterProjectFactory(projFact);
+            
             //proffer the service
             IServiceContainer serviceContainer = this as IServiceContainer;
             NimrodLanguageService langSvc = new NimrodLanguageService();
             langSvc.SetSite(this);
+            
             serviceContainer.AddService(typeof(NimrodLanguageService),
                 langSvc, true);
             //register a time to call our service during idle periods

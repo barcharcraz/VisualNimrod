@@ -49,8 +49,12 @@ namespace NimrodSharp_UintTests
         [TestMethod]
         public void TestDirtySuggest()
         {
-            var filename = generateNimrodDirtyFile();
-            var suggs = idetoolsfuncs
+            var filenamed = generateNimrodDirtyFile();
+            var filename = generateNimrodTestFile();
+            var expectedMod = Path.GetFileNameWithoutExtension(filename);
+            var suggs = idetoolsfuncs.GetDirtySuggestions(filenamed, filename, 4, 5, filename);
+            Assert.AreEqual(suggs.Count, 2);
+            Assert.AreEqual(suggs[0].path, expectedMod + ".test");
         }
     }
 }

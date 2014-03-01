@@ -155,7 +155,7 @@
     <Compile Include="Attributes\NimLocDisplayNameAttribute.cs" />
     <Compile Include="Attributes\NimDescriptionAttribute.cs" />
     <Compile Include="Guids.cs" />
-    <Compile Include="IntelliSense\NimrodDefinitions.cs" />
+    <Compile Include="IntelliSense\NimrodDeclarations.cs" />
     <Compile Include="NimrodAuthoringScope.cs" />
     <Compile Include="NimrodLanguageService.cs" />
     <Compile Include="NimrodProject\NimrodGeneralPropertyPage.cs" />

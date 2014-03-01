@@ -78,5 +78,10 @@ namespace Company.NimrodVS.NimrodProject
             return service;
         }
         #endregion
+
+        public string GetProjectFile()
+        {
+            return this.ProjectMgr.GetProjectProperty("StartupObject");
+        }
     }
 }

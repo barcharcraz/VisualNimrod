@@ -4,35 +4,41 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Package;
-
+using NimrodSharp;
 namespace Company.NimrodVS.IntelliSense
 {
-    public class NimrodDefinitions : Declarations
+    public class NimrodDeclarations : Declarations
     {
-
+        private List<idetoolsReply> m_decl;
+        public NimrodDeclarations(List<idetoolsReply> reply)
+            : base()
+        {
+            m_decl = reply;
+        }
         public override int GetCount()
         {
-            throw new NotImplementedException();
+            return m_decl.Count;
         }
 
         public override string GetDescription(int index)
         {
-            throw new NotImplementedException();
+            return m_decl[index].docstring;
         }
 
         public override string GetDisplayText(int index)
         {
-            throw new NotImplementedException();
+            return m_decl[index].path;
         }
 
         public override int GetGlyph(int index)
         {
-            throw new NotImplementedException();
+            return 0;
         }
 
         public override string GetName(int index)
         {
-            throw new NotImplementedException();
+            var nameWOModule = m_decl[index].path.Split('.').Last();
+            return nameWOModule;
         }
     }
 }

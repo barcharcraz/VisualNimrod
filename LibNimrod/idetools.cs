@@ -41,6 +41,7 @@ namespace NimrodSharp
         public string filePath;
         public int line;
         public int col;
+        public string docstring;
     }
     public class idetools
     {
@@ -97,6 +98,7 @@ namespace NimrodSharp
             {
                 rv.col = -1;
             }
+            rv.docstring = cols[7];
             return rv;
         }
         public static List<idetoolsReply> ParseMultipleReply(string reply)

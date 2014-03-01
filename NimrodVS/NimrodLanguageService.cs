@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Project.Automation;
+using EnvDTE;
 
 namespace Company.NimrodVS
 {
@@ -14,6 +17,12 @@ namespace Company.NimrodVS
     {
         private LanguagePreferences prefs;
         private NimrodScanner m_scanner;
+        private string m_dirtyfile;
+        public NimrodLanguageService()
+            : base()
+        {
+            m_dirtyfile = Path.GetTempFileName();
+        }
         public override LanguagePreferences GetLanguagePreferences()
         {
             if (prefs == null)
@@ -49,7 +58,23 @@ namespace Company.NimrodVS
         }
         public override AuthoringScope ParseSource(ParseRequest req)
         {
-            return new NimrodAuthoringScope();
+            var dte = (DTE)GetService(typeof(DTE));
+            var props = dte.Solution.FindProjectItem(req.FileName).ContainingProject.Properties as OAProperties;
+            var node = props.Node as NimrodProject.NimrodProjectNode;
+            
+            string startupObj = "";
+            //dte.Solution.FindProjectItem(req.FileName).ConfigurationManager.ActiveConfiguration.
+            //yes this is a linear search through what looks like a key-value store
+            //but I honestly have no idea how DTE works or how to do it better, there
+            //are probably only a few dozen props anyway
+            foreach (EnvDTE.Property prop in props)
+            {
+                if (prop.Name == "StartupObject")
+                {
+                    startupObj = prop.Value as string;
+                }
+            }
+            return new NimrodAuthoringScope(req.FileName, m_dirtyfile, startupObj);
         }
 
         public override string GetFormatFilterList()
