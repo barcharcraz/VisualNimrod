@@ -40,7 +40,7 @@ namespace Company.NimrodVS
             {
                 case ParseReason.CompleteWord:
                 case ParseReason.MemberSelect:
-                    var reply = idetoolsfuncs.GetDirtySuggestions(m_dirtyname, m_filename, line, col, m_projectfile);
+                    var reply = idetoolsfuncs.GetDirtySuggestions(m_dirtyname, m_filename, line + 1, col + 1, m_filename);
                     return new IntelliSense.NimrodDeclarations(reply);
                 default:
                     return null;

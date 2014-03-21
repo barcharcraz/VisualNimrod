@@ -118,7 +118,8 @@ namespace NimrodSharp
         }
         public static string GetDirtyArgs(string action, string dirty_file, string file, int line, int col, string project)
         {
-            string rv = "--verbosity:0 idetools --trackDirty:" + dirty_file + "," + file + "," + line.ToString() + "," + col.ToString() + " --" + action + " " + Path.GetFileName(project);
+            string fileRelitive = file.Substring(Path.GetDirectoryName(project).Length + 1);
+            string rv = " --verbosity:0 idetools --trackDirty:\"" + dirty_file + "," + fileRelitive + "," + line.ToString() + "," + col.ToString() + "\" --" + action + " " + Path.GetFileName(project);
             return rv;
         }
         public static string GetRawResults(string action, string file, int line, int col, string project)
@@ -126,8 +127,9 @@ namespace NimrodSharp
             var startInfo = CreateStartInfo(GetArgs(action, file, line, col, project));
             startInfo.WorkingDirectory = Path.GetDirectoryName(project);
             var proc = Process.Start(startInfo);
-            proc.WaitForExit();
+            
             string result = proc.StandardOutput.ReadToEnd();
+            proc.WaitForExit();
             return result;
         }
         public static string GetRawDirtyResults(string action, string dirty_file, string file, int line, int col, string project)
@@ -135,8 +137,9 @@ namespace NimrodSharp
             var startInfo = CreateStartInfo(GetDirtyArgs(action, dirty_file, file, line, col, project));
             startInfo.WorkingDirectory = Path.GetDirectoryName(project);
             var proc = Process.Start(startInfo);
-            proc.WaitForExit();
+            
             string result = proc.StandardOutput.ReadToEnd();
+            proc.WaitForExit();
             return result;
         }
         public static List<idetoolsReply> GetReply(string action, string file, int line, int col, string project)

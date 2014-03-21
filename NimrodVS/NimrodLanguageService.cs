@@ -59,21 +59,11 @@ namespace Company.NimrodVS
         public override AuthoringScope ParseSource(ParseRequest req)
         {
             var dte = (DTE)GetService(typeof(DTE));
+            
             var props = dte.Solution.FindProjectItem(req.FileName).ContainingProject.Properties as OAProperties;
             var node = props.Node as NimrodProject.NimrodProjectNode;
             
-            string startupObj = "";
-            //dte.Solution.FindProjectItem(req.FileName).ConfigurationManager.ActiveConfiguration.
-            //yes this is a linear search through what looks like a key-value store
-            //but I honestly have no idea how DTE works or how to do it better, there
-            //are probably only a few dozen props anyway
-            foreach (EnvDTE.Property prop in props)
-            {
-                if (prop.Name == "StartupObject")
-                {
-                    startupObj = prop.Value as string;
-                }
-            }
+            string startupObj = Path.Combine(node.ProjectFolder, node.GetProjectProperty("StartupObject"));
             return new NimrodAuthoringScope(req.FileName, m_dirtyfile, startupObj);
         }
 
