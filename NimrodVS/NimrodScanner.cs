@@ -5,15 +5,93 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
-using NimrodSharp;
-using NimrodSharp.highlite;
 namespace Company.NimrodVS
 {
+    public enum TTokenClass : int
+    {
+        gtEof, gtNone, gtWhitespace, gtDecNumber, gtBinNumber, gtHexNumber,
+        gtOctNumber, gtFloatNumber, gtIdentifier, gtKeyword, gtStringLit,
+        gtLongStringLit, gtCharLit, gtEscapeSequence,
+        gtOperator, gtPunctation, gtComment, gtLongComment, gtRegularExpression,
+        gtTagStart, gtTagEnd, gtKey, gtValue, gtRawData, gtAssembler,
+        gtPreprocessor, gtDirective, gtCommand, gtRule, gtHyperlink, gtLabel,
+        gtReference, gtOther
+    }
+    static class LanguageConstants
+    {
+        public static readonly HashSet<string> keywords = new HashSet<string>
+        {
+            "addr", "and", "as", "asm", "atomic",
+            "bind", "block", "break",
+            "case", "cast", "const", "continue", "converter",
+            "discard", "distinct", "div", "do",
+            "elif", "else", "end", "enum", "except", "export",
+            "finally", "for", "from",
+            "generic",
+            "if", "import", "in", "include", "interface", "is", "isnot", "iterator",
+            "lambda", "let",
+            "macro", "method", "mixin", "mod",
+            "nil", "not", "notin",
+            "object", "of", "or", "out",
+            "proc", "ptr",
+            "raise", "ref", "return",
+            "shl", "shr", "static",
+            "template", "try", "tuple", "type",
+            "using",
+            "var",
+            "when", "while", "with", "without",
+            "xor",
+            "yield"
+        };
+    }
+    class NimrodTokenizer
+    {
+        private TTokenClass kind;
+        private string m_source;
+        private int start;
+        private int end;
+        private string nextToken;
+        public int Start { get { return start; } }
+        public int End { get { return end; } }
+        public string NextToken { get { return nextToken; } }
+        public TTokenClass Kind { get { return kind; } }
+        public NimrodTokenizer(string source)
+        {
+            m_source = source;
+            start = 0;
+            end = 0;
+            advanceOne();
+        }
+        public void advanceOne()
+        {
+            if (end >= m_source.Length)
+            {
+                kind = TTokenClass.gtEof;
+                return;
+            }
+            start = end;
+            end = m_source.IndexOf(' ', start + 1);
+            if (end == -1)
+            {
+                nextToken = m_source.Substring(start + 1);
+                end = m_source.Length;
+            }
+            nextToken = m_source.Substring(start, end - start);
+            kind = TTokenClass.gtOther;
+            if (LanguageConstants.keywords.Contains(nextToken))
+            {
+                kind = TTokenClass.gtKeyword;
+            }
+
+        }
+
+    }
     class NimrodScanner : IScanner
     {
         private IVsTextBuffer m_buffer;
         private string m_source;
-        private TGeneralTokenizer m_tokenizer;
+        //private TGeneralTokenizer m_tokenizer;
+        private NimrodTokenizer m_tokenizer;
         public NimrodScanner(IVsTextBuffer buffer)
         {
             m_buffer = buffer;
@@ -21,9 +99,8 @@ namespace Company.NimrodVS
         }
         public bool ScanTokenAndProvideInfoAboutIt(TokenInfo tokenInfo, ref int state)
         {
-            var lastToken = m_tokenizer.kind;
-            highlite.NimNextToken(ref m_tokenizer);
-            switch (m_tokenizer.kind)
+            var lastToken = m_tokenizer.Kind;
+            switch (m_tokenizer.Kind)
             {
                 case TTokenClass.gtEof:
                     return false;
@@ -96,20 +173,16 @@ namespace Company.NimrodVS
                     tokenInfo.Color = TokenColor.Text;
                     break;
             }
-            if (m_source[m_tokenizer.pos - 1] == '.' && lastToken == TTokenClass.gtIdentifier)
-            {
-                tokenInfo.Trigger = TokenTriggers.MemberSelect;
-            }
-            tokenInfo.StartIndex = m_tokenizer.start;
-            tokenInfo.EndIndex = m_tokenizer.start + m_tokenizer.length - 1;
+            tokenInfo.StartIndex = m_tokenizer.Start;
+            tokenInfo.EndIndex = m_tokenizer.End;
+            m_tokenizer.advanceOne();
             return true;
         }
 
         public void SetSource(string source, int offset)
         {
-            highlite.CloseGeneralTokenizer(ref m_tokenizer);
             m_source = source.Substring(offset);
-            m_tokenizer = highlite.OpenGeneralTokenizer(m_source);
+            m_tokenizer = new NimrodTokenizer(m_source);
         }
     }
 }
