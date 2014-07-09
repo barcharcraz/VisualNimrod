@@ -157,6 +157,7 @@
     <Compile Include="Guids.cs" />
     <Compile Include="IntelliSense\NimrodDeclarations.cs" />
     <Compile Include="NimrodAuthoringScope.cs" />
+    <Compile Include="NimrodAuthoringSink.cs" />
     <Compile Include="NimrodLanguageService.cs" />
     <Compile Include="NimrodProject\NimrodGeneralPropertyPage.cs" />
     <Compile Include="NimrodProject\NimrodProjectAutomation.cs" />
@@ -165,6 +166,7 @@
     <Compile Include="NimrodProject\NimrodProjectNode.cs" />
     <Compile Include="NimrodResources.cs" />
     <Compile Include="NimrodScanner.cs" />
+    <Compile Include="NimrodSource.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

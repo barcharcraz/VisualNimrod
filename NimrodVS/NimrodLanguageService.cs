@@ -23,6 +23,10 @@ namespace Company.NimrodVS
         {
             m_dirtyfile = Path.GetTempFileName();
         }
+        public override Source CreateSource(IVsTextLines buffer)
+        {
+            return new NimrodSource(this, buffer, GetColorizer(buffer));
+        }
         public override LanguagePreferences GetLanguagePreferences()
         {
             if (prefs == null)

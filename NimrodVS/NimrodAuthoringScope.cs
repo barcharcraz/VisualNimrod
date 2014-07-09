@@ -51,10 +51,30 @@ namespace Company.NimrodVS
         {
             return null;
         }
-
+        
         public override string Goto(Microsoft.VisualStudio.VSConstants.VSStd97CmdID cmd, IVsTextView textView, int line, int col, out TextSpan span)
         {
             span = new TextSpan();
+            switch (cmd)
+            {
+                case VSConstants.VSStd97CmdID.GotoDefn:
+                    var def = idetoolsfuncs.GetDef(m_filename, line, col, m_projectfile);
+                    if (def.type == symTypes.none)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        span = new TextSpan();
+                        span.iStartLine = def.line - 1;
+                        span.iEndIndex = def.col;
+                        span.iStartIndex = 0;
+                        span.iEndLine = def.line - 1;
+                        return def.filePath;
+                    }
+                default:
+                    break;
+            }
             return null;
         }
     }

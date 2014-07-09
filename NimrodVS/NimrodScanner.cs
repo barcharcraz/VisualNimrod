@@ -50,17 +50,34 @@ namespace Company.NimrodVS
         private string m_source;
         private int start;
         private int end;
+        private int tokenEnd;
         private string nextToken;
         public int Start { get { return start; } }
-        public int End { get { return end; } }
+        public int End { get { return tokenEnd; } }
         public string NextToken { get { return nextToken; } }
         public TTokenClass Kind { get { return kind; } }
         public NimrodTokenizer(string source)
         {
             m_source = source;
             start = 0;
-            end = 0;
+            end = -1;
             advanceOne();
+        }
+        private static int skipChar(string str, char chr, int idx)
+        {
+            if (idx == -1)
+            {
+                return idx;
+            }
+            while (idx + 1 < str.Length && str[idx + 1] == chr)
+            {
+                idx++;
+            }
+            if (idx >= str.Length)
+            {
+                return -1;
+            }
+            return idx;
         }
         public void advanceOne()
         {
@@ -69,20 +86,58 @@ namespace Company.NimrodVS
                 kind = TTokenClass.gtEof;
                 return;
             }
-            start = end;
-            end = m_source.IndexOf(' ', start + 1);
-            if (end == -1)
+            if (start >= m_source.Length)
             {
-                nextToken = m_source.Substring(start + 1);
+                kind = TTokenClass.gtEof;
+                return;
+            }
+            if (m_source[start] == '#')
+            {
+                kind = TTokenClass.gtComment;
                 end = m_source.Length;
+                tokenEnd = m_source.Length;
             }
-            nextToken = m_source.Substring(start, end - start);
-            kind = TTokenClass.gtOther;
-            if (LanguageConstants.keywords.Contains(nextToken))
+            else
             {
-                kind = TTokenClass.gtKeyword;
+                start = end + 1;
+                if (start >= m_source.Length)
+                {
+                    kind = TTokenClass.gtEof;
+                    return;
+                }
+                kind = TTokenClass.gtOther;
+                var spaceIdx = m_source.IndexOf(' ', start);
+                tokenEnd = spaceIdx - 1;
+                spaceIdx = skipChar(m_source, ' ', spaceIdx);
+                var parenIdx = m_source.IndexOf('(', start);
+                var starIdx = m_source.IndexOf('*', start);
+                end = spaceIdx;
+                
+                if (parenIdx != -1 && parenIdx < end)
+                {
+                    kind = TTokenClass.gtIdentifier;
+                    end = parenIdx;
+                    tokenEnd = parenIdx - 1;
+                }
+                if (starIdx != -1 && starIdx < end)
+                {
+                    end = starIdx;
+                    tokenEnd = starIdx - 1;
+                    kind = TTokenClass.gtIdentifier;
+                }
+                if (end == -1)
+                {
+                    nextToken = m_source.Substring(start);
+                    end = m_source.Length;
+                    tokenEnd = m_source.Length;
+                }
+                nextToken = m_source.Substring(start, (end - start));
+                
+                if (LanguageConstants.keywords.Contains(nextToken))
+                {
+                    kind = TTokenClass.gtKeyword;
+                }
             }
-
         }
 
     }
@@ -173,6 +228,7 @@ namespace Company.NimrodVS
                     tokenInfo.Color = TokenColor.Text;
                     break;
             }
+            
             tokenInfo.StartIndex = m_tokenizer.Start;
             tokenInfo.EndIndex = m_tokenizer.End;
             m_tokenizer.advanceOne();

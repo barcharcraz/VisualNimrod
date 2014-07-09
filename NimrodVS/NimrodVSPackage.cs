@@ -36,7 +36,7 @@ namespace Company.NimrodVS
     [Guid(GuidList.guidNimrodVSPkgString)]
     [ProvideObject(typeof(NimrodProject.NimrodGeneralPropertyPage))]
     [ProvideService(typeof(NimrodLanguageService), ServiceName="Nimrod Language Service")]
-    [ProvideLanguageService(typeof(NimrodLanguageService), "Nimrod", 106, CodeSense=true,
+    [ProvideLanguageService(typeof(NimrodLanguageService), "Nimrod", 106, CodeSense=true, EnableFormatSelection = true,
         RequestStockColors=true)]
     [ProvideLanguageExtension(typeof(NimrodLanguageService), ".nim")]
     [ProvideProjectFactory(typeof(NimrodProject.NimrodProjectFactory), "Nimrod Executable", "Nimrod Projects (*.nimproj);*.nimproj", "nimproj", "nimproj", @"..\..\Templates\Projects\NimrodProject", LanguageVsTemplate = "NimrodProject", NewProjectRequireNewFolderVsTemplate=false)]
