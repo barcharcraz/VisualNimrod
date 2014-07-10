@@ -12,7 +12,7 @@ using System.ComponentModel;
 using System.IO;
 using Company.NimrodVS.Attributes;
 
-namespace Company.NimrodVS.NimrodProject
+namespace Company.NimrodVS.ManagedNimrodProject
 {
     [ComVisible(true)]
     public class NimrodGeneralPropertyPage : SettingsPage

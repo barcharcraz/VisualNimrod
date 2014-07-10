@@ -34,14 +34,14 @@ namespace Company.NimrodVS
     // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(GuidList.guidNimrodVSPkgString)]
-    [ProvideObject(typeof(NimrodProject.NimrodGeneralPropertyPage))]
+    [ProvideObject(typeof(ManagedNimrodProject.NimrodGeneralPropertyPage))]
     [ProvideObject(typeof(BuildPropertyPage))]
     [ProvideService(typeof(NimrodLanguageService), ServiceName="Nimrod Language Service")]
     [ProvideLanguageService(typeof(NimrodLanguageService), "Nimrod", 106, CodeSense=true, EnableFormatSelection = true,
         RequestStockColors=true)]
     [ProvideLanguageExtension(typeof(NimrodLanguageService), ".nim")]
-    [ProvideProjectFactory(typeof(NimrodProject.NimrodProjectFactory), "Nimrod Executable", "Nimrod Projects (*.nimproj);*.nimproj", "nimproj", "nimproj", @"..\..\Templates\Projects\NimrodProject", LanguageVsTemplate = "NimrodProject", NewProjectRequireNewFolderVsTemplate=false)]
-    [ProvideProjectItem(typeof(NimrodProject.NimrodProjectFactory), "Nimrod Source", @"..\..\Templates\ProjectItems\NimrodProject", 500)]
+    [ProvideProjectFactory(typeof(ManagedNimrodProject.NimrodProjectFactory), "Nimrod Executable", "Nimrod Projects (*.nimproj);*.nimproj", "nimproj", "nimproj", @"..\..\Templates\Projects\NimrodProject", LanguageVsTemplate = "NimrodProject", NewProjectRequireNewFolderVsTemplate=false)]
+    [ProvideProjectItem(typeof(ManagedNimrodProject.NimrodProjectFactory), "Nimrod Source", @"..\..\Templates\ProjectItems\NimrodProject", 500)]
     public sealed class NimrodVSPackage : ProjectPackage, IOleComponent
     {
         /// <summary>
@@ -70,7 +70,7 @@ namespace Company.NimrodVS
         {
             Debug.WriteLine (string.Format(CultureInfo.CurrentCulture, "Entering Initialize() of: {0}", this.ToString()));
             base.Initialize();
-            var projFact = new NimrodProject.NimrodProjectFactory(this);
+            var projFact = new ManagedNimrodProject.NimrodProjectFactory(this);
             this.RegisterProjectFactory(projFact);
             
             //proffer the service

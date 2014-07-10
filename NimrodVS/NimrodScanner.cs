@@ -44,6 +44,12 @@ namespace Company.NimrodVS
             "yield"
         };
     }
+    enum TStringTypes
+    {
+        stNone,
+        stNormal,
+        stRaw
+    }
     class NimrodTokenizer
     {
         private TTokenClass kind;
@@ -51,6 +57,7 @@ namespace Company.NimrodVS
         private int start;
         private int end;
         private int tokenEnd;
+        private TStringTypes inString;
         private string nextToken;
         public int Start { get { return start; } }
         public int End { get { return tokenEnd; } }
@@ -58,6 +65,7 @@ namespace Company.NimrodVS
         public TTokenClass Kind { get { return kind; } }
         public NimrodTokenizer(string source)
         {
+            inString = TStringTypes.stNone;
             m_source = source;
             start = 0;
             end = -1;
@@ -81,6 +89,7 @@ namespace Company.NimrodVS
         }
         public void advanceOne()
         {
+            start = end + 1;
             if (end >= m_source.Length)
             {
                 kind = TTokenClass.gtEof;
@@ -97,9 +106,25 @@ namespace Company.NimrodVS
                 end = m_source.Length;
                 tokenEnd = m_source.Length;
             }
+            else if (m_source[start] == '"')
+            {
+                if (start + 2 < m_source.Length && m_source.Substring(start, 3) == "\"\"\"")
+                {
+                    end = start + 2;
+                    tokenEnd = start + 2;
+                    kind = TTokenClass.gtLongStringLit;
+                    return;
+                }
+                else
+                {
+                    end = start;
+                    tokenEnd = start;
+                    kind = TTokenClass.gtStringLit;
+                    return;
+                }
+            }
             else
             {
-                start = end + 1;
                 if (start >= m_source.Length)
                 {
                     kind = TTokenClass.gtEof;
@@ -109,30 +134,37 @@ namespace Company.NimrodVS
                 var spaceIdx = m_source.IndexOf(' ', start);
                 tokenEnd = spaceIdx - 1;
                 spaceIdx = skipChar(m_source, ' ', spaceIdx);
-                var parenIdx = m_source.IndexOf('(', start);
-                var starIdx = m_source.IndexOf('*', start);
+                var searchStart = start;
+                var quoteIdx = m_source.IndexOf('"', searchStart);
+                var parenIdx = m_source.IndexOf('(', searchStart);
+                var starIdx = m_source.IndexOf('*', searchStart);
                 end = spaceIdx;
-                
-                if (parenIdx != -1 && parenIdx < end)
-                {
-                    kind = TTokenClass.gtIdentifier;
-                    end = parenIdx;
-                    tokenEnd = parenIdx - 1;
-                }
-                if (starIdx != -1 && starIdx < end)
-                {
-                    end = starIdx;
-                    tokenEnd = starIdx - 1;
-                    kind = TTokenClass.gtIdentifier;
-                }
                 if (end == -1)
                 {
                     nextToken = m_source.Substring(start);
                     end = m_source.Length;
                     tokenEnd = m_source.Length;
                 }
-                nextToken = m_source.Substring(start, (end - start));
+                if (parenIdx != -1 && parenIdx < end)
+                {
+                    kind = TTokenClass.gtIdentifier;
+                    end = parenIdx;
+                    tokenEnd = parenIdx;
+                }
+                if (starIdx != -1 && starIdx < end)
+                {
+                    end = starIdx;
+                    tokenEnd = starIdx;
+                    kind = TTokenClass.gtIdentifier;
+                }
+                if (quoteIdx != -1 && quoteIdx < end)
+                {
+                    end = quoteIdx - 1;
+                    tokenEnd = quoteIdx;
+                }
                 
+                nextToken = m_source.Substring(start, (end - start));
+
                 if (LanguageConstants.keywords.Contains(nextToken))
                 {
                     kind = TTokenClass.gtKeyword;
@@ -140,6 +172,13 @@ namespace Company.NimrodVS
             }
         }
 
+    }
+    [Flags]
+    enum NimrodScannerFlags : int
+    {
+        None = 0,
+        RawStringLit = 1,
+        NormalStringLit = 2
     }
     class NimrodScanner : IScanner
     {
@@ -150,10 +189,10 @@ namespace Company.NimrodVS
         public NimrodScanner(IVsTextBuffer buffer)
         {
             m_buffer = buffer;
-            
         }
         public bool ScanTokenAndProvideInfoAboutIt(TokenInfo tokenInfo, ref int state)
         {
+            NimrodScannerFlags flags = (NimrodScannerFlags)state;
             var lastToken = m_tokenizer.Kind;
             switch (m_tokenizer.Kind)
             {
@@ -184,7 +223,15 @@ namespace Company.NimrodVS
                     tokenInfo.Color = TokenColor.Keyword;
                     break;
                 case TTokenClass.gtStringLit:
+                    tokenInfo.Type = TokenType.String;
+                    tokenInfo.Color = TokenColor.String;
+                    flags ^= NimrodScannerFlags.NormalStringLit;
+                    break;
                 case TTokenClass.gtLongStringLit:
+                    tokenInfo.Type = TokenType.String;
+                    tokenInfo.Color = TokenColor.String;
+                    flags ^= NimrodScannerFlags.RawStringLit;
+                    break;
                 case TTokenClass.gtCharLit:
                     tokenInfo.Type = TokenType.String;
                     tokenInfo.Color = TokenColor.String;
@@ -228,7 +275,12 @@ namespace Company.NimrodVS
                     tokenInfo.Color = TokenColor.Text;
                     break;
             }
-            
+            if (flags.HasFlag(NimrodScannerFlags.NormalStringLit) || flags.HasFlag(NimrodScannerFlags.RawStringLit))
+            {
+                tokenInfo.Color = TokenColor.String;
+                tokenInfo.Type = TokenType.String;
+            }
+            state = (int)flags;
             tokenInfo.StartIndex = m_tokenizer.Start;
             tokenInfo.EndIndex = m_tokenizer.End;
             m_tokenizer.advanceOne();

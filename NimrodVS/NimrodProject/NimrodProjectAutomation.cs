@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.Project.Automation;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.Project;
-namespace Company.NimrodVS.NimrodProject
+namespace Company.NimrodVS.ManagedNimrodProject
 {
     [ComVisible(true)]
     public class OANimrodProject : OAProject

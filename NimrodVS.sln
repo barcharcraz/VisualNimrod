@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.20827.3
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NimrodVS", "NimrodVS\NimrodVS.csproj", "{94F4018F-4FCE-4A9F-B9F7-F0B9169B4812}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NimrodSharp", "LibNimrod\NimrodSharp.csproj", "{4A26A734-3426-4E76-8BBE-6CD63FFE8284}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NimrodSharp_UintTests", "LibNimrod_UintTests\NimrodSharp_UintTests.csproj", "{1EAF2A35-4C1F-4B61-9DE3-D805216B9D55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NimrodProject", "NimrodProject\NimrodProject.csproj", "{0F74FC73-8F77-4D61-9A85-B5868313F7E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +69,12 @@ Global
 		{1EAF2A35-4C1F-4B61-9DE3-D805216B9D55}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1EAF2A35-4C1F-4B61-9DE3-D805216B9D55}.Release|x64.ActiveCfg = Release|x64
 		{1EAF2A35-4C1F-4B61-9DE3-D805216B9D55}.Release|x64.Build.0 = Release|x64
+		{0F74FC73-8F77-4D61-9A85-B5868313F7E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F74FC73-8F77-4D61-9A85-B5868313F7E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F74FC73-8F77-4D61-9A85-B5868313F7E9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0F74FC73-8F77-4D61-9A85-B5868313F7E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F74FC73-8F77-4D61-9A85-B5868313F7E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F74FC73-8F77-4D61-9A85-B5868313F7E9}.Release|x64.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

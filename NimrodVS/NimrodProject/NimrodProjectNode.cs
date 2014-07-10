@@ -7,7 +7,7 @@ using VSLangProj;
 using EnvDTE;
 using Microsoft.VisualStudio.Project;
 using Microsoft.VisualStudio.Project.Automation;
-namespace Company.NimrodVS.NimrodProject
+namespace Company.NimrodVS.ManagedNimrodProject
 {
     public class NimrodProjectNode : ProjectNode
     {

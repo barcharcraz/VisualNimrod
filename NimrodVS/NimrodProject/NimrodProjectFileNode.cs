@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Project.Automation;
 using Microsoft.VisualStudio.Project;
-namespace Company.NimrodVS.NimrodProject
+namespace Company.NimrodVS.ManagedNimrodProject
 {
     public class NimrodProjectFileNode : FileNode
     {

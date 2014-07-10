@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.Project;
 using IOleServiceProvider = Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
-namespace Company.NimrodVS.NimrodProject
+namespace Company.NimrodVS.ManagedNimrodProject
 {
     public class NimrodProjectFactory : ProjectFactory
     {

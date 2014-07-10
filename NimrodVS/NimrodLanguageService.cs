@@ -65,7 +65,7 @@ namespace Company.NimrodVS
             var dte = (DTE)GetService(typeof(DTE));
             
             var props = dte.Solution.FindProjectItem(req.FileName).ContainingProject.Properties as OAProperties;
-            var node = props.Node as NimrodProject.NimrodProjectNode;
+            var node = props.Node as ManagedNimrodProject.NimrodProjectNode;
             
             string startupObj = Path.Combine(node.ProjectFolder, node.GetProjectProperty("StartupObject"));
             return new NimrodAuthoringScope(req.FileName, m_dirtyfile, startupObj);
