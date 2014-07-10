@@ -35,6 +35,7 @@ namespace Company.NimrodVS
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(GuidList.guidNimrodVSPkgString)]
     [ProvideObject(typeof(NimrodProject.NimrodGeneralPropertyPage))]
+    [ProvideObject(typeof(BuildPropertyPage))]
     [ProvideService(typeof(NimrodLanguageService), ServiceName="Nimrod Language Service")]
     [ProvideLanguageService(typeof(NimrodLanguageService), "Nimrod", 106, CodeSense=true, EnableFormatSelection = true,
         RequestStockColors=true)]

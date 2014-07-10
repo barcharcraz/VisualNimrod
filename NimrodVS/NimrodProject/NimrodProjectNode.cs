@@ -54,8 +54,9 @@ namespace Company.NimrodVS.NimrodProject
         }
         protected override Guid[] GetConfigurationIndependentPropertyPages()
         {
-            Guid[] result = new Guid[1];
+            Guid[] result = new Guid[2];
             result[0] = typeof(NimrodGeneralPropertyPage).GUID;
+            result[1] = typeof(BuildPropertyPage).GUID;
             return result;
         }
         protected override Guid[] GetPriorityProjectDesignerPages()
@@ -78,7 +79,6 @@ namespace Company.NimrodVS.NimrodProject
             return service;
         }
         #endregion
-
         public string GetProjectFile()
         {
             return this.ProjectMgr.GetProjectProperty("StartupObject");

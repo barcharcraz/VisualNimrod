@@ -3234,5 +3234,157 @@ namespace Microsoft.VisualStudio.Project
             this.itemsDraggedOrCutOrCopied = new List<HierarchyNode>();
         }
         #endregion
+
+        #region General helper methods
+        /// <summary>
+        /// This helper method can be used to search for child nodes of the
+        /// given root node based on the specified criteria.  Child nodes are
+        /// searched recursively.
+        /// 
+        /// This is from the sandcastile help file builder written by EFW
+        /// </summary>
+        /// <param name="root">The root node to search</param>
+        /// <param name="predicate">An optional predicate used to filter the
+        /// nodes or null to return them all.</param>
+        public static IEnumerable<HierarchyNode> FindNodes(HierarchyNode root, Func<HierarchyNode, bool> predicate)
+        {
+            if (root == null)
+            {
+                throw new ArgumentNullException("root");
+            }
+            for (HierarchyNode child = root.FirstChild; child != null; child = child.NextSibling)
+            {
+                if (predicate == null || predicate(child))
+                {
+                    yield return child;
+                }
+                if (child.FirstChild == null)
+                {
+                    foreach (HierarchyNode n in FindNodes(child, predicate))
+                    {
+                        yield return n;
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        #region Core Show All Files support
+        //=====================================================================
+
+        // Core functionality implemented in HierarchyNode.cs:
+        // - Updated ExcludeNodeFromScc to return true for non-member items.
+        // - Added support for __VSHPROPID.VSHPROPID_IsNonMemberItem in GetProperty().
+        // - Added support for __VSHPROPID.VSHPROPID_IsNonMemberItem in SetProperty().
+        // - Updated GetEditLabel() to ignore the request for non-member items.
+        // - Updated QueryStatusOnNode() to latch the SHOWALLFILES command if toggled on.
+        // - Updated the Remove() method to handle removal of nodes when Show All Files is enabled.
+        // - Added the members below to support Show All Files and Include in Project.
+
+        // See ProjectNode.cs for core functionality implemented in there.
+        // See FolderNode.cs for core functionality implemented in there.
+        // See FileNode.cs for core functionality implemented in there.
+
+        /// <summary>
+        /// This is used to indicate whether or not the node is a non-member
+        /// item (the item is not part of the hierarchy).
+        /// </summary>
+        public bool IsNonMemberItem { get; set; }
+
+        /// <summary>
+        /// This method converts a non-member node into a member node.
+        /// </summary>
+        /// <returns>Returns S_OK on success or an error code on failure</returns>
+        public virtual int IncludeInProject()
+        {
+            int result = VSConstants.S_OK;
+
+            if (this.ProjectMgr == null || this.ProjectMgr.IsClosed)
+                return (int)OleConstants.OLECMDERR_E_NOTSUPPORTED;
+
+            // If not a non-member item, just ignore it
+            if (!this.IsNonMemberItem)
+                return result;
+
+            if (!this.ProjectMgr.QueryEditProjectFile(false))
+                throw Marshal.GetExceptionForHR(VSConstants.OLE_E_PROMPTSAVECANCELLED);
+
+            // Include all of the parent folders in the project as needed
+            result = this.EnsureParentFoldersAreIncluded();
+
+            if (result == VSConstants.S_OK)
+            {
+                // Add the project item
+                this.IsNonMemberItem = false;
+
+                if (this is FileNode)
+                {
+                    this.ItemNode = this.ProjectMgr.AddFileToMsBuild(this.Url);
+                    this.ProjectMgr.Tracker.OnItemAdded(this.Url, VSADDFILEFLAGS.VSADDFILEFLAGS_NoFlags);
+                }
+                else
+                    this.ItemNode = this.ProjectMgr.AddFolderToMsBuild(this.Url);
+
+                // Update the icon and source control state overlay
+                this.ReDraw(UIHierarchyElement.Icon | UIHierarchyElement.SccState);
+
+                // Reset the properties so that they are recreated for the member node
+                this.ResetProperties();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Reset the properties so that they are recreated the next time they are requested
+        /// </summary>
+        protected void ResetProperties()
+        {
+            nodeProperties = null;
+            this.OnPropertyChanged(this, (int)__VSHPROPID.VSHPROPID_BrowseObject, 0);
+
+            IVsUIShell vsuiShell = this.GetService(typeof(SVsUIShell)) as IVsUIShell;
+
+            if (vsuiShell != null)
+            {
+                int hr = vsuiShell.RefreshPropertyBrowser(0);
+
+                if (hr != 0)
+                    Marshal.ThrowExceptionForHR(hr);
+            }
+        }
+
+        /// <summary>
+        /// This is used to ensure that all parent folder nodes are included in
+        /// the project as member nodes.
+        /// </summary>
+        /// <returns>Returns S_OK on success or an error code on failure</returns>
+        protected int EnsureParentFoldersAreIncluded()
+        {
+            Stack<FolderNode> stack = new Stack<FolderNode>();
+            int result = VSConstants.S_OK;
+
+            // Get all non-member parent nodes if any
+            FolderNode parentNode = this.Parent as FolderNode;
+
+            while (parentNode != null && parentNode.IsNonMemberItem)
+            {
+                stack.Push(parentNode);
+                parentNode = parentNode.Parent as FolderNode;
+            }
+
+            // Add them to the project
+            while (stack.Count > 0 && result == VSConstants.S_OK)
+            {
+                parentNode = stack.Pop();
+                parentNode.CreateDirectory();
+                result = parentNode.IncludeInProject();
+            }
+
+            return result;
+        }
+        #endregion
+
     }
 }

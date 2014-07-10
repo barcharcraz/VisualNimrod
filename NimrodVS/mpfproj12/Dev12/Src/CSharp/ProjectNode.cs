@@ -377,6 +377,9 @@ namespace Microsoft.VisualStudio.Project
 
         // Has the object been disposed.
         private bool isDisposed;
+
+        //are we showing all files
+        public bool ShowingAllFiles { get; private set; }
         #endregion
 
         #region abstract properties
@@ -2810,7 +2813,7 @@ namespace Microsoft.VisualStudio.Project
         /// <returns></returns>
         protected internal virtual int ShowAllFiles()
         {
-            return (int)OleConstants.OLECMDERR_E_NOTSUPPORTED;
+            return this.ToggleShowAllFiles();
         }
 
         /// <summary>
@@ -3417,7 +3420,7 @@ namespace Microsoft.VisualStudio.Project
         /// <returns>A ProjectElement describing the newly added file.</returns>
         [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "ToMs")]
         [SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "Ms")]
-        protected virtual ProjectElement AddFileToMsBuild(string file)
+        protected internal virtual ProjectElement AddFileToMsBuild(string file)
         {
             ProjectElement newItem;
 
@@ -3449,7 +3452,7 @@ namespace Microsoft.VisualStudio.Project
         /// <returns>A Projectelement describing the newly added folder.</returns>
         [SuppressMessage("Microsoft.Naming", "CA1702:CompoundWordsShouldBeCasedCorrectly", MessageId = "ToMs")]
         [SuppressMessage("Microsoft.Naming", "CA1709:IdentifiersShouldBeCasedCorrectly", MessageId = "Ms")]
-        protected virtual ProjectElement AddFolderToMsBuild(string folder)
+        protected internal virtual ProjectElement AddFolderToMsBuild(string folder)
         {
             ProjectElement newItem;
 
@@ -6487,7 +6490,6 @@ namespace Microsoft.VisualStudio.Project
 
             return paths.ToString();
         }
-
         #endregion
 
         public int UpdateTargetFramework(IVsHierarchy pHier, string currentTargetFramework, string newTargetFramework)
@@ -6628,5 +6630,294 @@ namespace Microsoft.VisualStudio.Project
 
             return false;
         }
+
+        // !EFW
+        #region Core Show All Files/Refresh support
+        //=====================================================================
+
+        // Core functionality implemented in the ProjectNode.cs:
+        // - Added ShowingAllFiles property.
+        // - Updated the ShowAllFiles() method to call ToggleShowAllFiles().
+        // - Added RefreshProject() method.
+
+        // Additional functionality not implemented in ProjectNode.cs (handle in derived class):
+        // - Override ShowAllFiles() to persist toggle state if so desired.
+        // - Override Reload() to restore the toggle state if so desired.
+        // - Override IsItemTypeFileType() if necessary to handle custom file item types.
+
+        /// <summary>
+        /// Refresh the project by toggling the Show All Files state
+        /// </summary>
+        public void RefreshProject()
+        {
+            this.ToggleShowAllFiles();
+            this.ToggleShowAllFiles();
+        }
+
+        /// <summary>
+        /// Toggles the state of Show All Files
+        /// </summary>
+        /// <returns>S_OK if it is possible to toggle the state, OLECMDERR_E_NOTSUPPORTED if not</returns>
+        protected internal int ToggleShowAllFiles()
+        {
+            if (this.ProjectMgr == null || this.ProjectMgr.IsClosed)
+                return (int)OleConstants.OLECMDERR_E_NOTSUPPORTED;
+
+            this.ShowingAllFiles = !this.ShowingAllFiles;
+
+            // Set the wait cursor as this may take a while if there are a lot of files
+            IVsUIShell shell = (IVsUIShell)((System.IServiceProvider)package).GetService(typeof(SVsUIShell));
+
+            if (shell != null)
+                shell.SetWaitCursor();
+
+            if (!this.ShowingAllFiles)
+            {
+                // Find all non-member items and reverse the list so that we remove children first
+                // followed by their parent nodes.
+                foreach (var n in HierarchyNode.FindNodes(this, n => n.IsNonMemberItem).Reverse())
+                {
+                    n.OnItemDeleted();
+                    n.Parent.RemoveChild(n);
+                }
+            }
+            else
+            {
+                this.AddMissingProjectMembers();
+                this.AddNonMemberItems();
+            }
+
+            return NativeMethods.S_OK;
+        }
+
+        /// <summary>
+        /// Add non-member items to the hierarchy
+        /// </summary>
+        private void AddNonMemberItems()
+        {
+            string path;
+
+            // Get a list of the folders and files in the project folder excluding those that
+            // are hidden.  Hash sets are used so that we can do case-insensitive comparisons
+            // when excluding existing project items from the lists.
+            HashSet<string> folders = new HashSet<string>(Directory.EnumerateDirectories(
+                this.ProjectFolder, "*", SearchOption.AllDirectories).Where(p =>
+                {
+                    DirectoryInfo di = new DirectoryInfo(p);
+
+                    return !((di.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden);
+                }).Select(p => PackageUtilities.MakeRelative(this.ProjectFolder, p)),
+                StringComparer.OrdinalIgnoreCase);
+
+            HashSet<string> files = new HashSet<string>(Directory.EnumerateFiles(
+                this.ProjectFolder, "*", SearchOption.AllDirectories).Where(f =>
+                {
+                    FileInfo fi = new FileInfo(f);
+
+                    return !((fi.Attributes & FileAttributes.Hidden) == FileAttributes.Hidden);
+                }).Select(f => PackageUtilities.MakeRelative(this.ProjectFolder, f)),
+                StringComparer.OrdinalIgnoreCase);
+
+            // Remove the folders and files that are already in the project
+            foreach (Microsoft.Build.Evaluation.ProjectItem item in this.BuildProject.Items)
+                if (folders.Count != 0 && item.ItemType.Equals(ProjectFileConstants.Folder,
+                  StringComparison.OrdinalIgnoreCase))
+                {
+                    path = item.EvaluatedInclude;
+
+                    // It should be relative already but check it just in case
+                    if (Path.IsPathRooted(path))
+                        path = PackageUtilities.MakeRelative(this.ProjectFolder, path);
+
+                    if (folders.Contains(path))
+                        folders.Remove(path);
+                }
+                else
+                    if (files.Count != 0 && this.IsItemTypeFileType(item.ItemType))
+                    {
+                        path = item.EvaluatedInclude;
+
+                        // It should be relative already but check it just in case
+                        if (Path.IsPathRooted(path))
+                            path = PackageUtilities.MakeRelative(this.ProjectFolder, path);
+
+                        if (files.Contains(path))
+                            files.Remove(path);
+                    }
+
+            // Add the remaining items to the project
+            this.AddNonMemberFolderItems(folders);
+            this.AddNonMemberFileItems(files);
+        }
+
+        /// <summary>
+        /// Add non-member folder items to the hierarchy
+        /// </summary>
+        /// <param name="foldersToAdd">An enumerable list of the folders to add</param>
+        private void AddNonMemberFolderItems(IEnumerable<string> foldersToAdd)
+        {
+            IVsUIHierarchyWindow uiWindow = UIHierarchyUtilities.GetUIHierarchyWindow(this.Site, SolutionExplorer);
+            HierarchyNode parent, child, first;
+            string[] pathParts;
+            string childId;
+
+            foreach (string relativePath in foldersToAdd)
+            {
+                parent = this;
+                first = null;
+                pathParts = relativePath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+                // Add folder items for each part of the path
+                foreach (string name in pathParts)
+                {
+                    childId = Path.Combine(parent.VirtualNodeName, name);
+                    child = parent.FindChild(childId);
+
+                    if (child == null)
+                    {
+                        // Note the first folder so that we can collapse it when done if necessary
+                        if (first == null)
+                        {
+                            first = parent as FolderNode;
+
+                            if (first != null && !first.IsNonMemberItem && first.IsExpanded)
+                                first = null;
+                        }
+
+                        child = this.CreateFolderNode(childId, new ProjectElement(this, null, true));
+                        child.IsNonMemberItem = true;
+                        parent.AddChild(child);
+                    }
+
+                    parent = child;
+                }
+
+                if (first != null && uiWindow != null)
+                {
+                    first.IsExpanded = false;
+                    first.SetProperty((int)__VSHPROPID.VSHPROPID_Expanded, false);
+                    ErrorHandler.ThrowOnFailure(uiWindow.ExpandItem(this, first.ID, EXPANDFLAGS.EXPF_CollapseFolder));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Add non-member file items to the hierarchy
+        /// </summary>
+        /// <param name="filesToAdd">An enumerable list of the files to add</param>
+        private void AddNonMemberFileItems(IEnumerable<string> filesToAdd)
+        {
+            IVsUIHierarchyWindow uiWindow = UIHierarchyUtilities.GetUIHierarchyWindow(this.Site, SolutionExplorer);
+            HierarchyNode parent, child, first;
+            ProjectElement element;
+            string[] pathParts;
+            string childId;
+
+            foreach (string relativePath in filesToAdd)
+            {
+                // TODO: Probably should exclude the .user file too.  Any others?
+                // Don't add the project file itself
+                if (String.Equals(relativePath, this.ProjectFile, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                parent = this;
+                first = null;
+                pathParts = relativePath.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+                // Find the parent folder item
+                foreach (string name in pathParts)
+                {
+                    childId = Path.Combine(parent.VirtualNodeName, name);
+                    child = parent.FindChild(childId);
+
+                    if (child == null)
+                    {
+                        // Note the first folder so that we can collapse it when done if necessary
+                        if (first == null)
+                        {
+                            first = parent as FolderNode;
+
+                            if (first != null && !first.IsNonMemberItem && first.IsExpanded)
+                                first = null;
+                        }
+
+                        element = new ProjectElement(this, null, true);
+                        element.Rename(childId);
+                        element.SetMetadata(ProjectFileConstants.Name, childId);
+                        child = this.CreateFileNode(element);
+                        child.IsNonMemberItem = true;
+                        parent.AddChild(child);
+                        break;
+                    }
+
+                    parent = child;
+                }
+
+                if (first != null)
+                {
+                    first.IsExpanded = false;
+                    first.SetProperty((int)__VSHPROPID.VSHPROPID_Expanded, false);
+                    ErrorHandler.ThrowOnFailure(uiWindow.ExpandItem(this, first.ID, EXPANDFLAGS.EXPF_CollapseFolder));
+                }
+            }
+        }
+
+        /// <summary>
+        /// This will scan the project looking for file items that don't exist in the hierarchy.
+        /// If any are found, they are added as proper hierarchy members.
+        /// </summary>
+        /// <remarks>This is similar to <see cref="ProcessFiles"/> but it filters out items
+        /// already in the hierarchy.</remarks>
+        private void AddMissingProjectMembers()
+        {
+            List<String> subitemsKeys = new List<String>();
+            Dictionary<String, MSBuild.ProjectItem> subitems = new Dictionary<String, MSBuild.ProjectItem>();
+            HashSet<string> items = new HashSet<string>();
+            string fullPath;
+
+            foreach (MSBuild.ProjectItem item in this.buildProject.Items.ToList())
+            {
+                // Ignore the item if it is a reference or folder
+                if (this.FilterItemTypeToBeAddedToHierarchy(item.ItemType))
+                    continue;
+
+                // MSBuilds tasks/targets can create items (such as object files), such items are not part
+                // of the project per se, and should not be displayed so ignore those items.
+                if (!this.IsItemTypeFileType(item.ItemType))
+                    continue;
+
+                fullPath = item.EvaluatedInclude;
+
+                if (!Path.IsPathRooted(fullPath))
+                    fullPath = Path.Combine(this.ProjectFolder, fullPath);
+
+                // If the item is already contained do nothing
+                if (items.Contains(item.EvaluatedInclude.ToUpperInvariant()) ||
+                  base.FindChild(fullPath) != null)
+                    continue;
+
+                // Make sure that we do not want to add the item, dependent, or independent twice to
+                // the UI hierarchy.
+                items.Add(item.EvaluatedInclude.ToUpperInvariant());
+
+                string dependentOf = item.GetMetadataValue(ProjectFileConstants.DependentUpon);
+
+                if (!this.CanFileNodesHaveChilds || String.IsNullOrEmpty(dependentOf))
+                    this.AddIndependentFileNode(item);
+                else
+                {
+                    // We will process dependent items later.  Note that we use 2 lists as we want to
+                    // remove elements from the collection as we loop through it.
+                    subitemsKeys.Add(item.EvaluatedInclude);
+                    subitems.Add(item.EvaluatedInclude, item);
+                }
+            }
+
+            // Now process the dependent items
+            if (this.CanFileNodesHaveChilds)
+                this.ProcessDependentFileNodes(subitemsKeys, subitems);
+        }
+        #endregion
+
     }
 }

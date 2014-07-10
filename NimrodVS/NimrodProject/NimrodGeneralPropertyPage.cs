@@ -94,6 +94,7 @@ namespace Company.NimrodVS.NimrodProject
                 switch (this.outputType)
                 {
                     case OutputType.Exe:
+                        return this.assemblyName + ".exe";
                     case OutputType.WinExe:
                         return this.assemblyName + ".exe";
                     case OutputType.Library:

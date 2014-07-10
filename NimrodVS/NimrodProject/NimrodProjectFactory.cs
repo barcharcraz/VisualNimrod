@@ -15,6 +15,7 @@ namespace Company.NimrodVS.NimrodProject
             : base(package)
         {
             this.package = package;
+            
         }
 
         protected override ProjectNode CreateProject()
