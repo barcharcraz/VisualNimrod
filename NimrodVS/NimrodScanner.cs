@@ -41,7 +41,7 @@ namespace Company.NimrodVS
             "var",
             "when", "while", "with", "without",
             "xor",
-            "yield"
+            "yield", "block", "static"
         };
     }
     enum TStringTypes
