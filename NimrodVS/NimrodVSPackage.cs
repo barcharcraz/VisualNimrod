@@ -40,8 +40,8 @@ namespace Company.NimrodVS
     [ProvideLanguageService(typeof(NimrodLanguageService), "Nimrod", 106, CodeSense=true, EnableFormatSelection = true,
         RequestStockColors=true)]
     [ProvideLanguageExtension(typeof(NimrodLanguageService), ".nim")]
-    [ProvideProjectFactory(typeof(ManagedNimrodProject.NimrodProjectFactory), "Nimrod Executable", "Nimrod Projects (*.nimproj);*.nimproj", "nimproj", "nimproj", @"..\..\Templates\Projects\NimrodProject", LanguageVsTemplate = "NimrodProject", NewProjectRequireNewFolderVsTemplate=false)]
-    [ProvideProjectItem(typeof(ManagedNimrodProject.NimrodProjectFactory), "Nimrod Source", @"..\..\Templates\ProjectItems\NimrodProject", 500)]
+    [ProvideProjectFactory(typeof(ManagedNimrodProject.NimrodProjectFactory), null, "Nimrod Projects (*.nimproj);*.nimproj", "nimproj", "nimproj", ".\\NullPath", LanguageVsTemplate = "NimrodProject", NewProjectRequireNewFolderVsTemplate=false)]
+    //[ProvideProjectItem(typeof(ManagedNimrodProject.NimrodProjectFactory), "Nimrod Source", @"..\..\Templates\ProjectItems\NimrodProject", 500)]
     public sealed class NimrodVSPackage : ProjectPackage, IOleComponent
     {
         /// <summary>

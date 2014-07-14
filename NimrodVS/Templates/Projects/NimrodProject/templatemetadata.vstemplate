@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<VSTemplate Type="Project" Version = "2.0.0" xmlns ="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Nimrod Project</Name>
+    <Description>A basic nimrod project</Description>
+    <Icon>nimrod.ico</Icon>
+    <ProjectType>NimrodProject</ProjectType>
+  </TemplateData>
+  <TemplateContent>
+    <Project File="NimrodProject.nimproj">
+      <ProjectItem>Program.nim</ProjectItem>
+    </Project>
+  </TemplateContent>
+</VSTemplate>

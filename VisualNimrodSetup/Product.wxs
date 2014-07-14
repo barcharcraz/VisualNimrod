@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:VSExtension ="http://schemas.microsoft.com/wix/VSExtension">
+	<Product Id="*" Name="VisualNimrodSetup" Language="1033" Version="1.0.0.0" Manufacturer="Visual Nimrod Team" UpgradeCode="1c3013b6-7f15-42fd-b970-55e16635d13b">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate />
+
+		<Feature Id="ProductFeature" Title="VisualNimrodSetup" Level="1">
+			<ComponentGroupRef Id="ProductComponents" />
+		</Feature>
+	</Product>
+  <Fragment>
+    <Property Id="VSINSTALLDIR">
+      <RegistrySearch Id="VSInstallRegistry" Root="HKLM"
+                     Key="SOFTWARE\Microsoft\VisualStudio\12.0"
+                      Name="InstallADir" Type="directory" />
+    </Property>
+    <CustomAction Id="SetVISXInstaller" Return="check" Execute="immediate"
+                  Property="VSIXInstaller" Value="[VSINSTALLDIR]\Common7\IDE\VSIXInstaller.exe" />
+    <CustomAction Id="DeployVSIX" Property="VSIXInstaller" Execute="deferred"
+                  Impersonate="no" ExeCommand="" Return="asyncWait" />
+    <InstallExecuteSequence>
+      <Custom Action="DeployVSIX" After="MsiPublishAssemblies" />
+    </InstallExecuteSequence>
+  </Fragment>
+	<Fragment>
+		<Directory Id="TARGETDIR" Name="SourceDir">
+			<Directory Id="ProgramFilesFolder">
+				<Directory Id="INSTALLFOLDER" Name="VisualNimrodSetup" />
+			</Directory>
+		</Directory>
+	</Fragment>
+
+	<Fragment>
+		<ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="VSPackage" Guid="*">
+        <VSExtension:VsixPackage File="VSNimrod" PackageId="2d33766d-5a12-49b5-9e70-80530a3eba98" 
+                                 Target="professional" TargetVersion="12.0" Vital="yes" Permanent="yes"/>
+        <File Id="VSNimrod" Name="NimrodVS.vsix" Source="C:\Users\charlie\source\VisualNimrod\NimrodVS\bin\Debug\NimrodVS.vsix" />
+        
+      </Component>
+			<!-- TODO: Remove the comments around this Component element and the ComponentRef below in order to add resources to this installer. -->
+			<!-- <Component Id="ProductComponent"> -->
+				<!-- TODO: Insert files, registry keys, and other resources here. -->
+			<!-- </Component> -->
+		</ComponentGroup>
+	</Fragment>
+</Wix>

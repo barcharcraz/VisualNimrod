@@ -5,7 +5,7 @@
     <DisplayName>NimrodVS</DisplayName>
     <Description xml:space="preserve">Adds nimrod support to visual studio</Description>
   </Metadata>
-  <Installation InstalledByMsi="false">
+  <Installation AllUsers="true">
     <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[12.0]" />
   </Installation>
   <Dependencies>

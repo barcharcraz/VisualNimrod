@@ -192,14 +192,25 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ZipItem Include="Templates\ProjectItems\NimrodItems\nimrod.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ZipItem>
+    <ZipItem Include="Templates\ProjectItems\NimrodItems\templatemetadata.vstemplate">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ZipItem>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Templates\ProjectItems\NimrodProject\SourceFile.nim" />
-    <None Include="Templates\Projects\NimrodProject\NimrodProject.nimproj">
+    <ZipItem Include="Templates\ProjectItems\NimrodItems\SourceFile.nim">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ZipItem>
+    <ZipProject Include="Templates\Projects\NimrodProject\NimrodProject.nimproj">
       <SubType>Designer</SubType>
-    </None>
-    <None Include="Templates\Projects\NimrodProject\Program.nim" />
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ZipProject>
+    <ZipProject Include="Templates\Projects\NimrodProject\Program.nim">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ZipProject>
   </ItemGroup>
   <ItemGroup>
     <None Include="Key.snk" />
@@ -219,6 +230,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Package.ico" />
+    <ZipProject Include="Templates\Projects\NimrodProject\nimrod.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ZipProject>
+    <ZipProject Include="Templates\Projects\NimrodProject\templatemetadata.vstemplate">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ZipProject>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ProjectBase\Diagrams\" />
@@ -250,6 +267,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <!--
   <PropertyGroup>
     <CopyPkgDefDependsOn>$(CopyPkgDefDependsOn);FixPkgdefTarget</CopyPkgDefDependsOn>
   </PropertyGroup>
@@ -273,4 +291,5 @@
          ]]></Code>
     </Task>
   </UsingTask>
+  -->
 </Project>
