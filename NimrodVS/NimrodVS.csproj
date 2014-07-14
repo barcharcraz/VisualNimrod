@@ -25,6 +25,9 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -193,7 +196,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Templates\ProjectItems\NimrodProject\SourceFile.nim" />
-    <None Include="Templates\Projects\NimrodProject\NimrodProject.nimproj" />
+    <None Include="Templates\Projects\NimrodProject\NimrodProject.nimproj">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Templates\Projects\NimrodProject\Program.nim" />
   </ItemGroup>
   <ItemGroup>

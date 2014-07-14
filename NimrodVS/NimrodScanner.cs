@@ -106,6 +106,20 @@ namespace Company.NimrodVS
                 end = m_source.Length;
                 tokenEnd = m_source.Length;
             }
+            else if (m_source[start] == '\'')
+            {
+                kind = TTokenClass.gtCharLit;
+                if (start + 2 < m_source.Length && m_source[start + 2] == '\'')
+                {
+                    end = start + 2;
+                    tokenEnd = start + 2;
+                }
+                else
+                {
+                    end = start;
+                    tokenEnd = start;
+                }
+            }
             else if (m_source[start] == '"')
             {
                 if (start + 2 < m_source.Length && m_source.Substring(start, 3) == "\"\"\"")
