@@ -60,6 +60,7 @@ namespace Company.NimrodVS
         {
             return new Colorizer(this, buffer, GetScanner(buffer));
         }
+        
         public override AuthoringScope ParseSource(ParseRequest req)
         {
             var dte = (DTE)GetService(typeof(DTE));
@@ -68,7 +69,23 @@ namespace Company.NimrodVS
             var node = props.Node as ManagedNimrodProject.NimrodProjectNode;
             
             string startupObj = Path.Combine(node.ProjectFolder, node.GetProjectProperty("StartupObject"));
-            return new NimrodAuthoringScope(req.FileName, m_dirtyfile, startupObj);
+            if (req.Reason == ParseReason.Check)
+            {
+                var errors = NimrodSharp.checkfuncs.CheckFile(req.FileName, node.ProjectFolder);
+                foreach (var error in errors)
+                {
+                    TextSpan ctx;
+                    ctx.iStartLine = error.row;
+                    ctx.iEndLine = error.rowend;
+                    ctx.iStartIndex = error.col;
+                    ctx.iEndIndex = error.colend;
+                    if (error.filePath == req.FileName)
+                    {
+                        req.Sink.AddError(error.filePath, error.messageString, ctx, (Severity)error.type);
+                    }
+                }
+            }
+            return new NimrodAuthoringScope(req, m_dirtyfile, startupObj);
         }
 
         public override string GetFormatFilterList()

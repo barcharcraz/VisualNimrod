@@ -10,7 +10,11 @@ namespace Company.NimrodVS
 {
     public class NimrodSource : Source
     {
-        public NimrodSource(LanguageService service, IVsTextLines buffer, Colorizer color) : base(service, buffer, color) { }
+        public NimrodSource(LanguageService service, IVsTextLines buffer, Colorizer color) : base(service, buffer, color) 
+        {
+            this.LastParseTime = 0;
+        }
+
         public override void ReformatSpan(EditArray mgr, Microsoft.VisualStudio.TextManager.Interop.TextSpan span)
         {
             base.ReformatSpan(mgr, span);

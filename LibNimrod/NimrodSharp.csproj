@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="checker.cs" />
     <Compile Include="highlite.cs" />
     <Compile Include="idetools.cs" />
     <Compile Include="lexer.cs" />
