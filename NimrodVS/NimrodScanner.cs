@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
+using System.Diagnostics;
 namespace Company.NimrodVS
 {
     public enum TTokenClass : int
@@ -69,7 +70,7 @@ namespace Company.NimrodVS
             m_source = source;
             start = 0;
             end = -1;
-            advanceOne();
+            advanceOne(NimrodScannerFlags.None);
         }
         private static int skipChar(string str, char chr, int idx)
         {
@@ -87,8 +88,12 @@ namespace Company.NimrodVS
             }
             return idx;
         }
-        public void advanceOne()
+        public void advanceOne(NimrodScannerFlags flags)
         {
+            /*if (m_source.Contains("else:"))
+            {
+                Debugger.Break();
+            }*/
             start = end + 1;
             if (end >= m_source.Length)
             {
@@ -100,7 +105,7 @@ namespace Company.NimrodVS
                 kind = TTokenClass.gtEof;
                 return;
             }
-            if (m_source[start] == '#')
+            if (m_source[start] == '#' && flags == NimrodScannerFlags.None)
             {
                 kind = TTokenClass.gtComment;
                 end = m_source.Length;
@@ -139,6 +144,7 @@ namespace Company.NimrodVS
             }
             else
             {
+
                 if (start >= m_source.Length)
                 {
                     kind = TTokenClass.gtEof;
@@ -152,6 +158,7 @@ namespace Company.NimrodVS
                 var quoteIdx = m_source.IndexOf('"', searchStart);
                 var parenIdx = m_source.IndexOf('(', searchStart);
                 var starIdx = m_source.IndexOf('*', searchStart);
+                var colonIdx = m_source.IndexOf(':', searchStart);
                 end = spaceIdx;
                 if (end == -1)
                 {
@@ -163,7 +170,7 @@ namespace Company.NimrodVS
                 {
                     kind = TTokenClass.gtIdentifier;
                     end = parenIdx;
-                    tokenEnd = parenIdx;
+                    tokenEnd = parenIdx - 1;
                 }
                 if (starIdx != -1 && starIdx < end)
                 {
@@ -175,6 +182,11 @@ namespace Company.NimrodVS
                 {
                     end = quoteIdx - 1;
                     tokenEnd = quoteIdx;
+                }
+                if (colonIdx != -1 && colonIdx < end)
+                {
+                    end = colonIdx;
+                    tokenEnd = colonIdx - 1;
                 }
                 
                 nextToken = m_source.Substring(start, (end - start));
@@ -239,7 +251,10 @@ namespace Company.NimrodVS
                 case TTokenClass.gtStringLit:
                     tokenInfo.Type = TokenType.String;
                     tokenInfo.Color = TokenColor.String;
-                    flags ^= NimrodScannerFlags.NormalStringLit;
+                    if (!flags.HasFlag(NimrodScannerFlags.RawStringLit))
+                    {
+                        flags ^= NimrodScannerFlags.NormalStringLit;
+                    }
                     break;
                 case TTokenClass.gtLongStringLit:
                     tokenInfo.Type = TokenType.String;
@@ -297,7 +312,7 @@ namespace Company.NimrodVS
             state = (int)flags;
             tokenInfo.StartIndex = m_tokenizer.Start;
             tokenInfo.EndIndex = m_tokenizer.End;
-            m_tokenizer.advanceOne();
+            m_tokenizer.advanceOne(flags);
             return true;
         }
 
