@@ -198,6 +198,14 @@
     <ZipItem Include="Templates\ProjectItems\NimrodItems\templatemetadata.vstemplate">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </ZipItem>
+    <Content Include="ProjectTemplates\NimrodProject.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="ItemTemplates\NimrodItems.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
@@ -224,11 +232,6 @@
     <None Include="Resources\Images.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\libnimrod\libnimrod.dll">
-      <Link>libnimrod.dll</Link>
-      <IncludeInVSIX>true</IncludeInVSIX>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\Package.ico" />
     <ZipProject Include="Templates\Projects\NimrodProject\nimrod.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
