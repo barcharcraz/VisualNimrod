@@ -308,6 +308,7 @@ namespace Company.NimrodVS
             {
                 tokenInfo.Color = TokenColor.String;
                 tokenInfo.Type = TokenType.String;
+                
             }
             state = (int)flags;
             tokenInfo.StartIndex = m_tokenizer.Start;

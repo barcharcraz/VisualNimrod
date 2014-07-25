@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.Project;
 using Microsoft.VisualStudio;
 using EnvDTE;
 using System.Runtime.InteropServices;
+using Company.NimrodVS.IntelliSense;
 namespace Company.NimrodVS
 {
     public class NimrodAuthoringScope : AuthoringScope
@@ -71,7 +72,7 @@ namespace Company.NimrodVS
 
         public override Methods GetMethods(int line, int col, string name)
         {
-            return null;
+            return new NimrodMethods(idetoolsfuncs.GetDirtyContext(m_dirtyname, m_filename, line, col + 1, m_projectfile));
         }
         
         public override string Goto(Microsoft.VisualStudio.VSConstants.VSStd97CmdID cmd, IVsTextView textView, int line, int col, out TextSpan span)

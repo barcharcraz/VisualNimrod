@@ -165,5 +165,9 @@ namespace NimrodSharp
         {
             return GetDirtyReply("suggest", dirty_file, file, line, col, project);
         }
+        public static List<idetoolsReply> GetDirtyContext(string dirty_file, string file, int line, int col, string project)
+        {
+            return GetDirtyReply("context", dirty_file, file, line, col, project);
+        }
     }
 }
