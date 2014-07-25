@@ -26,6 +26,9 @@
     </Compile>
   </ItemGroup>
   <Target Name="Build">
-    <Exec Command="nimrod c --passc:$(CompilerFlags) -d:$(Configuration) -o:$(OutputPath)$(AssemblyName) $(StartupObject) " />
+    <Exec Command="
+                  call %VS120COMNTOOLS%VCVarsQueryRegistry.bat No32bit 64bit         
+                  call %VCINSTALLDIR%vcvarsall.bat amd64
+                  nimrod c --cc:vcc --passc:$(CompilerFlags) -d:$(Configuration) --debugInfo --lineDir:on -o:$(OutputPath)$(AssemblyName) $(StartupObject) " />
   </Target>
 </Project>  

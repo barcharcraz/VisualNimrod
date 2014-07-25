@@ -14,7 +14,15 @@ namespace Company.NimrodVS
         {
             this.LastParseTime = 0;
         }
-
+        public override CommentInfo GetCommentFormat()
+        {
+            CommentInfo rv = new CommentInfo();
+            rv.BlockStart = "discard \"\"\"";
+            rv.BlockEnd = "\"\"\"";
+            rv.LineStart = "#";
+            rv.UseLineComments = true;
+            return rv;
+        }
         public override void ReformatSpan(EditArray mgr, Microsoft.VisualStudio.TextManager.Interop.TextSpan span)
         {
             base.ReformatSpan(mgr, span);
