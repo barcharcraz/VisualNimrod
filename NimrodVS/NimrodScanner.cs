@@ -16,7 +16,7 @@ namespace Company.NimrodVS
         gtOperator, gtPunctation, gtComment, gtLongComment, gtRegularExpression,
         gtTagStart, gtTagEnd, gtKey, gtValue, gtRawData, gtAssembler,
         gtPreprocessor, gtDirective, gtCommand, gtRule, gtHyperlink, gtLabel,
-        gtReference, gtOther
+        gtReference, gtOther, tkCurlyDorLe, tkCurlyDotRi, tkDot
     }
     static class LanguageConstants
     {
@@ -88,6 +88,28 @@ namespace Company.NimrodVS
             }
             return idx;
         }
+        private bool checkEqual(int position, char chr)
+        {
+            if (position >= m_source.Length)
+            {
+                return false;
+            }
+            else
+            {
+                return m_source[position] == chr;
+            }
+        }
+        private bool checkNotEqual(int position, char chr)
+        {
+            if (position >= m_source.Length)
+            {
+                return true;
+            }
+            else
+            {
+                return m_source[position] != chr;
+            }
+        }
         public void advanceOne(NimrodScannerFlags flags)
         {
             /*if (m_source.Contains("else:"))
@@ -142,6 +164,38 @@ namespace Company.NimrodVS
                     return;
                 }
             }
+            else if (m_source[start] == '{')
+            {
+                if (checkEqual(start + 1, '.') && checkNotEqual(start + 2, '.'))
+                {
+                    end = start + 1;
+                    tokenEnd = start + 1;
+                    kind = TTokenClass.tkCurlyDorLe;
+                }
+                else
+                {
+                    end = start;
+                    tokenEnd = start;
+                    kind = TTokenClass.gtPunctation;
+
+                }
+                
+            }
+            else if (m_source[start] == '.')
+            {
+                if (checkEqual(start + 1, '}'))
+                {
+                    end = start + 1;
+                    tokenEnd = start + 1;
+                    kind = TTokenClass.tkCurlyDotRi;
+                }
+                else
+                {
+                    end = start;
+                    tokenEnd = start;
+                    kind = TTokenClass.tkDot;
+                }
+            }
             else
             {
 
@@ -159,6 +213,7 @@ namespace Company.NimrodVS
                 var parenIdx = m_source.IndexOf('(', searchStart);
                 var starIdx = m_source.IndexOf('*', searchStart);
                 var colonIdx = m_source.IndexOf(':', searchStart);
+                var dotidx = m_source.IndexOf('.', searchStart);
                 end = spaceIdx;
                 if (end == -1)
                 {
@@ -188,7 +243,11 @@ namespace Company.NimrodVS
                     end = colonIdx;
                     tokenEnd = colonIdx - 1;
                 }
-                
+                if (dotidx != -1 && dotidx < end)
+                {
+                    end = dotidx - 1;
+                    tokenEnd = dotidx - 1;
+                }
                 nextToken = m_source.Substring(start, (end - start));
 
                 if (LanguageConstants.keywords.Contains(nextToken))
@@ -204,7 +263,8 @@ namespace Company.NimrodVS
     {
         None = 0,
         RawStringLit = 1,
-        NormalStringLit = 2
+        NormalStringLit = 2,
+        Pragma = 4
     }
     class NimrodScanner : IScanner
     {
@@ -302,6 +362,19 @@ namespace Company.NimrodVS
                 case TTokenClass.gtOther:
                     tokenInfo.Type = TokenType.Unknown;
                     tokenInfo.Color = TokenColor.Text;
+                    break;
+                case TTokenClass.tkCurlyDorLe:
+                    tokenInfo.Type = TokenType.Delimiter;
+                    tokenInfo.Color = TokenColor.Text;
+                    break;
+                case TTokenClass.tkCurlyDotRi:
+                    tokenInfo.Type = TokenType.Delimiter;
+                    tokenInfo.Color = TokenColor.Text;
+                    break;
+                case TTokenClass.tkDot:
+                    tokenInfo.Type = TokenType.Operator;
+                    tokenInfo.Color = TokenColor.Text;
+                    tokenInfo.Trigger = TokenTriggers.MemberSelect;
                     break;
             }
             if (flags.HasFlag(NimrodScannerFlags.NormalStringLit) || flags.HasFlag(NimrodScannerFlags.RawStringLit))
