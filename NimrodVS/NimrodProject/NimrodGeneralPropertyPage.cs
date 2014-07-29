@@ -22,6 +22,7 @@ namespace Company.NimrodVS.ManagedNimrodProject
         private string defaultNamespace;
         private string startupObject;
         private string applicationIcon;
+        private string ccompiler;
 
         public NimrodGeneralPropertyPage()
         {
@@ -104,7 +105,14 @@ namespace Company.NimrodVS.ManagedNimrodProject
                 }
             }
         }
-
+        [NimCategory(NimrodResources.Project)]
+        [NimLocDisplayName(NimrodResources.CCompiler)]
+        [NimDescription(NimrodResources.CCompilerDescription)]
+        public string CCompiler
+        {
+            get { return this.ccompiler; }
+            set { this.ccompiler = value; this.IsDirty = true; }
+        }
         public override string GetClassName()
         {
             return this.GetType().FullName;
@@ -124,6 +132,7 @@ namespace Company.NimrodVS.ManagedNimrodProject
             this.defaultNamespace = this.ProjectMgr.GetProjectProperty("RootNamespace", false);
             this.startupObject = this.ProjectMgr.GetProjectProperty("StartupObject", false);
             this.applicationIcon = this.ProjectMgr.GetProjectProperty("ApplicationIcon", false);
+            this.ccompiler = this.ProjectMgr.GetProjectProperty("CCompiler", false);
             
         }
         protected override int ApplyChanges()
@@ -138,6 +147,7 @@ namespace Company.NimrodVS.ManagedNimrodProject
             this.ProjectMgr.SetProjectProperty("RootNamespace", this.defaultNamespace);
             this.ProjectMgr.SetProjectProperty("StartupObject", this.startupObject);
             this.ProjectMgr.SetProjectProperty("ApplicationIcon", this.applicationIcon);
+            this.ProjectMgr.SetProjectProperty("CCompiler", this.CCompiler);
             this.IsDirty = false;
             return VSConstants.S_OK;
 

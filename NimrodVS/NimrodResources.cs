@@ -35,6 +35,9 @@ namespace Company.NimrodVS
         internal const string TargetFrameworkMonikerDescription = "TargetFrameworkMonikerDescription";
         internal const string NestedProjectFileAssemblyFilter = "NestedProjectFileAssemblyFilter";
 
+        internal const string CCompiler = "CCompiler";
+        internal const string CCompilerDescription = "Target C Compiler";
+
         private static NimrodResources loader;
         private ResourceManager resourceManager;
         private static Object internalSyncObjectInstance;

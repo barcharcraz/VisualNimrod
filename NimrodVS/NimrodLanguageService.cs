@@ -39,6 +39,7 @@ namespace Company.NimrodVS
                 {
                     this.prefs.Init();
                 }
+                this.prefs.ParameterInformation = true;
             }
             return this.prefs;
         }
@@ -84,6 +85,15 @@ namespace Company.NimrodVS
                         req.Sink.AddError(error.filePath, error.messageString, ctx, (Severity)error.type);
                     }
                 }
+            }
+            if (req.TokenInfo.Type == TokenType.Identifier)
+            {
+                TextSpan span;
+                span.iStartLine = req.Line;
+                span.iEndLine = req.Line;
+                span.iStartIndex = req.TokenInfo.StartIndex;
+                span.iEndIndex = req.TokenInfo.EndIndex;
+                req.Sink.StartName(span, req.Text);
             }
             return new NimrodAuthoringScope(req, m_dirtyfile, startupObj);
         }

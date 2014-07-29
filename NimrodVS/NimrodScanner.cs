@@ -16,7 +16,7 @@ namespace Company.NimrodVS
         gtOperator, gtPunctation, gtComment, gtLongComment, gtRegularExpression,
         gtTagStart, gtTagEnd, gtKey, gtValue, gtRawData, gtAssembler,
         gtPreprocessor, gtDirective, gtCommand, gtRule, gtHyperlink, gtLabel,
-        gtReference, gtOther, tkCurlyDorLe, tkCurlyDotRi, tkDot
+        gtReference, gtOther, tkCurlyDorLe, tkCurlyDotRi, tkDot, tkParLe, tkParRi, tkComma
     }
     static class LanguageConstants
     {
@@ -196,6 +196,24 @@ namespace Company.NimrodVS
                     kind = TTokenClass.tkDot;
                 }
             }
+            else if (m_source[start] == '(')
+            {
+                kind = TTokenClass.tkParLe;
+                end = start;
+                tokenEnd = start;
+            }
+            else if (m_source[start] == ')')
+            {
+                kind = TTokenClass.tkParRi;
+                end = start;
+                tokenEnd = start;
+            }
+            else if (m_source[start] == ',')
+            {
+                kind = TTokenClass.tkComma;
+                end = start;
+                tokenEnd = start;
+            }
             else
             {
 
@@ -224,7 +242,7 @@ namespace Company.NimrodVS
                 if (parenIdx != -1 && parenIdx < end)
                 {
                     kind = TTokenClass.gtIdentifier;
-                    end = parenIdx;
+                    end = parenIdx - 1;
                     tokenEnd = parenIdx - 1;
                 }
                 if (starIdx != -1 && starIdx < end)
@@ -303,6 +321,7 @@ namespace Company.NimrodVS
                 case TTokenClass.gtIdentifier:
                     tokenInfo.Type = TokenType.Identifier;
                     tokenInfo.Color = TokenColor.Identifier;
+                    
                     break;
                 case TTokenClass.gtKeyword:
                     tokenInfo.Type = TokenType.Keyword;
@@ -375,6 +394,21 @@ namespace Company.NimrodVS
                     tokenInfo.Type = TokenType.Operator;
                     tokenInfo.Color = TokenColor.Text;
                     tokenInfo.Trigger = TokenTriggers.MemberSelect;
+                    break;
+                case TTokenClass.tkParLe:
+                    tokenInfo.Type = TokenType.Delimiter;
+                    tokenInfo.Color = TokenColor.Text;
+                    tokenInfo.Trigger = TokenTriggers.ParameterStart;
+                    break;
+                case TTokenClass.tkParRi:
+                    tokenInfo.Type = TokenType.Delimiter;
+                    tokenInfo.Color = TokenColor.Text;
+                    tokenInfo.Trigger = TokenTriggers.ParameterEnd;
+                    break;
+                case TTokenClass.tkComma:
+                    tokenInfo.Type = TokenType.Text;
+                    tokenInfo.Color = TokenColor.Text;
+                    tokenInfo.Trigger = TokenTriggers.ParameterNext;
                     break;
             }
             if (flags.HasFlag(NimrodScannerFlags.NormalStringLit) || flags.HasFlag(NimrodScannerFlags.RawStringLit))
