@@ -22,11 +22,19 @@ namespace Company.NimrodVS.IntelliSense
 
         public override string GetDescription(int index)
         {
+            if (index >= m_decl.Count)
+            {
+                return "";
+            }
             return m_decl[index].docstring;
         }
 
         public override string GetDisplayText(int index)
         {
+            if (index >= m_decl.Count)
+            {
+                return "";
+            }
             return m_decl[index].path;
         }
 
@@ -37,6 +45,10 @@ namespace Company.NimrodVS.IntelliSense
 
         public override string GetName(int index)
         {
+            if (index >= m_decl.Count)
+            {
+                return "";
+            }
             var nameWOModule = m_decl[index].path.Split('.').Last();
             return nameWOModule;
         }

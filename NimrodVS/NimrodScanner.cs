@@ -394,6 +394,7 @@ namespace Company.NimrodVS
                     tokenInfo.Type = TokenType.Operator;
                     tokenInfo.Color = TokenColor.Text;
                     tokenInfo.Trigger = TokenTriggers.MemberSelect;
+                    
                     break;
                 case TTokenClass.tkParLe:
                     tokenInfo.Type = TokenType.Delimiter;

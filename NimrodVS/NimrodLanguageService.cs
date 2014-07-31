@@ -64,12 +64,14 @@ namespace Company.NimrodVS
         
         public override AuthoringScope ParseSource(ParseRequest req)
         {
+            
             var dte = (DTE)GetService(typeof(DTE));
             
             var props = dte.Solution.FindProjectItem(req.FileName).ContainingProject.Properties as OAProperties;
             var node = props.Node as ManagedNimrodProject.NimrodProjectNode;
             
             string startupObj = Path.Combine(node.ProjectFolder, node.GetProjectProperty("StartupObject"));
+            var rv = new NimrodAuthoringScope(req, m_dirtyfile, startupObj);
             if (req.Reason == ParseReason.Check)
             {
                 var errors = NimrodSharp.checkfuncs.CheckFile(req.FileName, node.ProjectFolder);
@@ -86,6 +88,12 @@ namespace Company.NimrodVS
                     }
                 }
             }
+            if (req.Reason == ParseReason.MemberSelect || 
+                req.Reason == ParseReason.MemberSelectAndHighlightBraces ||
+                req.Reason == ParseReason.CompleteWord)
+            {
+                rv.PopulateDeclerations(req.View, req.Line, req.Col);
+            }
             if (req.TokenInfo.Type == TokenType.Identifier)
             {
                 TextSpan span;
@@ -95,7 +103,7 @@ namespace Company.NimrodVS
                 span.iEndIndex = req.TokenInfo.EndIndex;
                 req.Sink.StartName(span, req.Text);
             }
-            return new NimrodAuthoringScope(req, m_dirtyfile, startupObj);
+            return rv;
         }
 
         public override string GetFormatFilterList()

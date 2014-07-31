@@ -38,7 +38,7 @@ namespace Company.NimrodVS
     [ProvideObject(typeof(BuildPropertyPage))]
     [ProvideService(typeof(NimrodLanguageService), ServiceName="Nimrod Language Service")]
     [ProvideLanguageService(typeof(NimrodLanguageService), "Nimrod", 106, CodeSense=true, EnableFormatSelection = true,
-        RequestStockColors=true, DefaultToInsertSpaces=true, ShowCompletion=true)]
+        RequestStockColors=true, DefaultToInsertSpaces=true, ShowCompletion=true, EnableAsyncCompletion=true)]
     [ProvideLanguageExtension(typeof(NimrodLanguageService), ".nim")]
     [ProvideProjectFactory(typeof(ManagedNimrodProject.NimrodProjectFactory), null, "Nimrod Projects (*.nimproj);*.nimproj", "nimproj", "nimproj", ".\\NullPath", LanguageVsTemplate = "NimrodProject", NewProjectRequireNewFolderVsTemplate=false)]
     public sealed class NimrodVSPackage : ProjectPackage, IOleComponent
