@@ -115,14 +115,14 @@ namespace NimrodSharp
         {
             string fileRelitive = file.Substring(Path.GetDirectoryName(project).Length + 1);
             var projectDir = Path.GetDirectoryName(project);
-            string rv = "--verbosity:0 --path:"+projectDir + " idetools --track:" + fileRelitive + "," + (line + 1).ToString() + "," + col.ToString() + " --" + action + " " + Path.GetFileName(project);
+            string rv = "--verbosity:0" + " idetools --track:" + fileRelitive + "," + (line + 1).ToString() + "," + col.ToString() + " --" + action + " " + Path.GetFileName(project);
             return rv;
         }
         public static string GetDirtyArgs(string action, string dirty_file, string file, int line, int col, string project)
         {
             string fileRelitive = file.Substring(Path.GetDirectoryName(project).Length + 1);
             var projectDir = Path.GetDirectoryName(project);
-            string rv = " --verbosity:0 --path:" + projectDir + " idetools --trackDirty:" + dirty_file + "," + fileRelitive + "," + line.ToString() + "," + col.ToString() + " --" + action + " " + fileRelitive;
+            string rv = " --verbosity:0" + " idetools --trackDirty:" + dirty_file + "," + fileRelitive + "," + line.ToString() + "," + col.ToString() + " --" + action + " " + fileRelitive;
             return rv;
         }
         public static string GetRawResults(string action, string file, int line, int col, string project)
