@@ -111,7 +111,7 @@ namespace NimrodSharp
         private static IEnumerable<CheckReply> ParseReply(string reply, string rootDir)
         {
             var rv = new List<CheckReply>();
-            var regex = new Regex(@"(.+\.nim)\((\d+), (\d+)\) (.+?): (.+) \[(.+)\]");
+            var regex = new Regex(@"(.+\.nim)\((\d+), (\d+)\) (.+?): (.+)\s?(?:\[(.+)\])?");
 
             var matches = regex.Matches(reply);
             foreach (Match match in matches)

@@ -61,7 +61,7 @@ namespace Company.NimrodVS
         private TStringTypes inString;
         private string nextToken;
         public int Start { get { return start; } }
-        public int End { get { return tokenEnd; } }
+        public int End { get { return tokenEnd - 1; } }
         public string NextToken { get { return nextToken; } }
         public TTokenClass Kind { get { return kind; } }
         public NimrodTokenizer(string source)
@@ -69,7 +69,7 @@ namespace Company.NimrodVS
             inString = TStringTypes.stNone;
             m_source = source;
             start = 0;
-            end = -1;
+            end = 0;
             advanceOne(NimrodScannerFlags.None);
         }
         private static int skipChar(string str, char chr, int idx)
@@ -116,7 +116,7 @@ namespace Company.NimrodVS
             {
                 Debugger.Break();
             }*/
-            start = end + 1;
+            start = end;
             if (end >= m_source.Length)
             {
                 kind = TTokenClass.gtEof;
@@ -138,28 +138,28 @@ namespace Company.NimrodVS
                 kind = TTokenClass.gtCharLit;
                 if (start + 2 < m_source.Length && m_source[start + 2] == '\'')
                 {
-                    end = start + 2;
-                    tokenEnd = start + 2;
+                    end = start + 3;
+                    tokenEnd = start + 3;
                 }
                 else
                 {
-                    end = start;
-                    tokenEnd = start;
+                    end = start + 1;
+                    tokenEnd = start + 1;
                 }
             }
             else if (m_source[start] == '"')
             {
                 if (start + 2 < m_source.Length && m_source.Substring(start, 3) == "\"\"\"")
                 {
-                    end = start + 2;
-                    tokenEnd = start + 2;
+                    end = start + 3;
+                    tokenEnd = start + 3;
                     kind = TTokenClass.gtLongStringLit;
                     return;
                 }
                 else
                 {
-                    end = start;
-                    tokenEnd = start;
+                    end = start + 1;
+                    tokenEnd = start + 1;
                     kind = TTokenClass.gtStringLit;
                     return;
                 }
@@ -168,14 +168,14 @@ namespace Company.NimrodVS
             {
                 if (checkEqual(start + 1, '.') && checkNotEqual(start + 2, '.'))
                 {
-                    end = start + 1;
-                    tokenEnd = start + 1;
+                    end = start + 2;
+                    tokenEnd = start + 2;
                     kind = TTokenClass.tkCurlyDorLe;
                 }
                 else
                 {
-                    end = start;
-                    tokenEnd = start;
+                    end = start + 1;
+                    tokenEnd = start + 1;
                     kind = TTokenClass.gtPunctation;
 
                 }
@@ -185,34 +185,52 @@ namespace Company.NimrodVS
             {
                 if (checkEqual(start + 1, '}'))
                 {
-                    end = start + 1;
-                    tokenEnd = start + 1;
+                    end = start + 2;
+                    tokenEnd = start + 2;
                     kind = TTokenClass.tkCurlyDotRi;
                 }
                 else
                 {
-                    end = start;
-                    tokenEnd = start;
+                    end = start + 1;
+                    tokenEnd = start + 1;
                     kind = TTokenClass.tkDot;
                 }
             }
             else if (m_source[start] == '(')
             {
                 kind = TTokenClass.tkParLe;
-                end = start;
-                tokenEnd = start;
+                end = start + 1;
+                tokenEnd = start + 1;
             }
             else if (m_source[start] == ')')
             {
                 kind = TTokenClass.tkParRi;
-                end = start;
-                tokenEnd = start;
+                end = start + 1;
+                tokenEnd = start + 1;
             }
             else if (m_source[start] == ',')
             {
                 kind = TTokenClass.tkComma;
-                end = start;
-                tokenEnd = start;
+                end = start + 1;
+                tokenEnd = start + 1;
+            }
+            else if (m_source[start] == '*')
+            {
+                kind = TTokenClass.gtPunctation;
+                end = start + 1;
+                tokenEnd = start + 1;
+            }
+            else if (m_source[start] == ':')
+            {
+                kind = TTokenClass.gtPunctation;
+                end = start + 1;
+                tokenEnd = start + 1;
+            }
+            else if (m_source[start] == ' ')
+            {
+                kind = TTokenClass.gtWhitespace;
+                end = start + 1;
+                tokenEnd = start + 1;
             }
             else
             {
@@ -224,11 +242,12 @@ namespace Company.NimrodVS
                 }
                 kind = TTokenClass.gtOther;
                 var spaceIdx = m_source.IndexOf(' ', start);
-                tokenEnd = spaceIdx - 1;
+                tokenEnd = spaceIdx;
                 spaceIdx = skipChar(m_source, ' ', spaceIdx);
                 var searchStart = start;
                 var quoteIdx = m_source.IndexOf('"', searchStart);
                 var parenIdx = m_source.IndexOf('(', searchStart);
+                var closeParenIdx = m_source.IndexOf(')', searchStart);
                 var starIdx = m_source.IndexOf('*', searchStart);
                 var colonIdx = m_source.IndexOf(':', searchStart);
                 var dotidx = m_source.IndexOf('.', searchStart);
@@ -242,8 +261,13 @@ namespace Company.NimrodVS
                 if (parenIdx != -1 && parenIdx < end)
                 {
                     kind = TTokenClass.gtIdentifier;
-                    end = parenIdx - 1;
-                    tokenEnd = parenIdx - 1;
+                    end = parenIdx;
+                    tokenEnd = parenIdx;
+                }
+                if (closeParenIdx != -1 && closeParenIdx < end)
+                {
+                    end = closeParenIdx;
+                    tokenEnd = closeParenIdx;
                 }
                 if (starIdx != -1 && starIdx < end)
                 {
@@ -253,20 +277,27 @@ namespace Company.NimrodVS
                 }
                 if (quoteIdx != -1 && quoteIdx < end)
                 {
-                    end = quoteIdx - 1;
+                    end = quoteIdx;
                     tokenEnd = quoteIdx;
                 }
                 if (colonIdx != -1 && colonIdx < end)
                 {
                     end = colonIdx;
-                    tokenEnd = colonIdx - 1;
+                    tokenEnd = colonIdx;
                 }
                 if (dotidx != -1 && dotidx < end)
                 {
-                    end = dotidx - 1;
-                    tokenEnd = dotidx - 1;
+                    end = dotidx;
+                    tokenEnd = dotidx;
                 }
-                nextToken = m_source.Substring(start, (end - start));
+                try
+                {
+                    nextToken = m_source.Substring(start, (end - start));
+                }
+                catch (Exception e)
+                {
+                    Debugger.Break();
+                }
 
                 if (LanguageConstants.keywords.Contains(nextToken))
                 {
