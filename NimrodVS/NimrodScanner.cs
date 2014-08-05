@@ -16,7 +16,8 @@ namespace Company.NimrodVS
         gtOperator, gtPunctation, gtComment, gtLongComment, gtRegularExpression,
         gtTagStart, gtTagEnd, gtKey, gtValue, gtRawData, gtAssembler,
         gtPreprocessor, gtDirective, gtCommand, gtRule, gtHyperlink, gtLabel,
-        gtReference, gtOther, tkCurlyDorLe, tkCurlyDotRi, tkDot, tkParLe, tkParRi, tkComma
+        gtReference, gtOther, tkCurlyDorLe, tkCurlyDotRi, tkDot, tkParLe, tkParRi, tkComma,
+        tkBracketLe, tkBracketRe
     }
     static class LanguageConstants
     {
@@ -229,6 +230,18 @@ namespace Company.NimrodVS
             else if (m_source[start] == ' ')
             {
                 kind = TTokenClass.gtWhitespace;
+                end = start + 1;
+                tokenEnd = start + 1;
+            }
+            else if (m_source[start] == '[')
+            {
+                kind = TTokenClass.tkBracketLe;
+                end = start + 1;
+                tokenEnd = start + 1;
+            }
+            else if (m_source[start] == ']')
+            {
+                kind = TTokenClass.tkBracketRe;
                 end = start + 1;
                 tokenEnd = start + 1;
             }
