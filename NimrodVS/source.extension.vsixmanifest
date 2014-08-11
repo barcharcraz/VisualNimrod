@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="2d33766d-5a12-49b5-9e70-80530a3eba98" Version="0.4" Language="en-US" Publisher="Company" />
+    <Identity Id="2d33766d-5a12-49b5-9e70-80530a3eba98" Version="0.5" Language="en-US" Publisher="Company" />
     <DisplayName>NimrodVS</DisplayName>
     <Description xml:space="preserve">Adds nimrod support to visual studio</Description>
   </Metadata>

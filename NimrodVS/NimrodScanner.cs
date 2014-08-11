@@ -264,12 +264,24 @@ namespace Company.NimrodVS
                 var starIdx = m_source.IndexOf('*', searchStart);
                 var colonIdx = m_source.IndexOf(':', searchStart);
                 var dotidx = m_source.IndexOf('.', searchStart);
+                var squareIdx = m_source.IndexOf('[', searchStart);
+                var closeSquareIdx = m_source.IndexOf(']', searchStart);
                 end = spaceIdx;
                 if (end == -1)
                 {
                     nextToken = m_source.Substring(start);
                     end = m_source.Length;
                     tokenEnd = m_source.Length;
+                }
+                if (squareIdx != -1 && squareIdx < end)
+                {
+                    end = squareIdx;
+                    tokenEnd = squareIdx;
+                }
+                if (closeSquareIdx != -1 && closeSquareIdx < end)
+                {
+                    end = closeSquareIdx;
+                    tokenEnd = closeSquareIdx;
                 }
                 if (parenIdx != -1 && parenIdx < end)
                 {
@@ -303,6 +315,7 @@ namespace Company.NimrodVS
                     end = dotidx;
                     tokenEnd = dotidx;
                 }
+
                 try
                 {
                     nextToken = m_source.Substring(start, (end - start));
