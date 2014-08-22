@@ -15,13 +15,14 @@ using System.Runtime.InteropServices;
 using Company.NimrodVS.IntelliSense;
 namespace Company.NimrodVS
 {
-    public class NimrodAuthoringScope : AuthoringScope
+    public class NimrodAuthoringScope : AuthoringScope, IDisposable
     {
         private string m_filename;
         private string m_dirtyname;
         private string m_projectfile;
         private AuthoringSink m_sink;
         private NimrodDeclarations decls;
+        bool disposed = false;
         public void PopulateDeclerations(IVsTextView view, int line, int col)
         {
             string text;
@@ -98,6 +99,22 @@ namespace Company.NimrodVS
                     break;
             }
             return null;
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+                return;
+            if (disposing)
+            {
+                decls.Dispose();
+            }
+            disposed = true;
         }
     }
 }
